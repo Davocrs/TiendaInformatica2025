@@ -6,6 +6,8 @@ package davidceducastur.es.tiendainformatica;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +24,12 @@ public class TiendaInformatica {
     private static List<Pedido> pedidos = new ArrayList<>();
 
     public static void main(String[] args) {
-        
+        TiendaInformatica t = new TiendaInformatica();
+        t.cargaDatos();
+        t.menuPrincipal();
     }
 
-    public void stock(int unidadesPed, String id) throws StockAgotado, StockInsuficiente {
+    public void stock(String id, int unidadesPed) throws StockAgotado, StockInsuficiente {
         int n = articulos.get(id).getExistencias();
         if (n == 0) {
             throw new StockAgotado("Stock AGOTADO para el articulo: " + articulos.get(id).getDescripcion());
@@ -55,37 +59,39 @@ public class TiendaInformatica {
         String dniT, idT, opc, pedidasS;
         Scanner sc = new Scanner(System.in);
         int pedidas = 0;
-
         sc.nextLine();
-
         do {
             System.out.println("CLIENTE PEDIDO (DNI):");
             dniT = sc.nextLine().toUpperCase();
+            //EN CUALQUIER MOMENTO PODEMOS SALIR DEL BUCLE TECLEANDO RETORNO
             if (dniT.isBlank()) {
                 break;
             }
-            if (!MetodosAuxiliares.validarDNI(dniT)) {
-                System.out.println("El DNI no es un DNI válido");
+            if (!MetodosAuxiliares.validarDNI(dniT) || !clientes.containsKey(dniT)) {
+                System.out.println("El DNI no es válido O NO ES CLIENTE DE LA TIENDA");
             };
         } while (!clientes.containsKey(dniT));
 
         if (!dniT.isBlank()) {
+            System.out.println("\t\tCOMENZAMOS CON EL PEDIDO");
+            System.out.println("INTRODUCE CODIGO ARTICULO (RETURN PARA TERMINAR): ");
+            idT = sc.nextLine();
 
-            System.out.println("INTRODUZCA LOS ARTÍCULOS DEL PEDIDO UNO A UNO: ");
-            do {
-                System.out.println("INTRODUCE CODIGO ARTICULO (99 PARA TERMINAR): ");
-                idT = sc.next();
-                if (!idT.equals("99") && articulos.containsKey(idT)) {
+            while (!idT.isEmpty()) {
+                if (!articulos.containsKey(idT)) {
+                    System.out.println("El ID articulo tecleado no existe");
+                } else {
                     System.out.print("(" + articulos.get(idT).getDescripcion() + ") - UNIDADES? ");
                     do {
-                        pedidasS = sc.next();
+                        pedidasS = sc.nextLine();
                     } while (!MetodosAuxiliares.esInt(pedidasS));
 
                     pedidas = Integer.parseInt(pedidasS);
 
                     try {
-                        stock(pedidas, idT); // LLAMO AL METODO STOCK, PUEDEN SALTAR 2 EXCEPCIONES
+                        stock(idT, pedidas); // LLAMO AL METODO STOCK, PUEDEN SALTAR 2 EXCEPCIONES
                         CestaCompraAux.add(new LineaPedido(idT, pedidas));
+                        articulos.get(idT).setExistencias(articulos.get(idT).getExistencias() - pedidas);
                     } catch (StockAgotado e) {
                         System.out.println(e.getMessage());
                     } catch (StockInsuficiente e) {
@@ -95,11 +101,13 @@ public class TiendaInformatica {
                         opc = sc.next();
                         if (opc.equalsIgnoreCase("S")) {
                             CestaCompraAux.add(new LineaPedido(idT, disponibles));
+                            articulos.get(idT).setExistencias(articulos.get(idT).getExistencias() - disponibles);
                         }
                     }
-
                 }
-            } while (!idT.equals("99"));
+                System.out.println("INTRODUCE CODIGO ARTICULO (RETURN PARA TERMINAR): ");
+                idT = sc.nextLine();
+            }
 
             //IMPRIMO EL PEDIDO Y SOLICITO ACEPTACION DEFINITIVA DEL MISMO 
             for (LineaPedido l : CestaCompraAux) {
@@ -111,9 +119,9 @@ public class TiendaInformatica {
                 // ESCRIBO EL PEDIDO DEFINITIVAMENTE Y DESCUENTO LAS EXISTENCIAS PEDIDAS DE CADA ARTICULO
                 LocalDate hoy = LocalDate.now();
                 pedidos.add(new Pedido(generaIdPedido(dniT), clientes.get(dniT), hoy, CestaCompraAux));
-
+            } else {
                 for (LineaPedido l : CestaCompraAux) {
-                    articulos.get(l.getIdArticulo()).setExistencias(articulos.get(l.getIdArticulo()).getExistencias() - l.getUnidades());
+                    articulos.get(l.getIdArticulo()).setExistencias(articulos.get(l.getIdArticulo()).getExistencias() + l.getUnidades());
                 }
             }
         }
@@ -144,34 +152,209 @@ public class TiendaInformatica {
         pedidos.add(new Pedido("63921307Y-001/2024", clientes.get("63921307Y"), hoy.minusDays(4), new ArrayList<>(List.of(new LineaPedido("2-11", 5), new LineaPedido("2-33", 3), new LineaPedido("4-33", 2)))));
     }
     
+//<editor-fold defaultstate="collapsed" desc="MENUS">
+    
     public void menuPrincipal() {
         Scanner sc = new Scanner(System.in);
         int opcion;
 
         do {
             System.out.println("\n--- MENU PRINCIPAL ---");
-            System.out.println("1. Añadir Cliente");
-            System.out.println("2. Añadir Artículo");
-            System.out.println("3. Hacer Pedido");
-            System.out.println("4. Listar Pedidos");
+            System.out.println("1. Menu Articulo");
+            System.out.println("2. Menu Pedido");
+            System.out.println("3. Menu cliente");
+            System.out.println("4. Listas");
             System.out.println("9. Salir");
             opcion = sc.nextInt();
 
             switch (opcion) {
                 case 1:
-                    menuLibros();
+                    menuArticulo();
                     break;
                 case 2:
-                    menuUsuarios();
+                    menuPedido();
                     break;
                 case 3:
-                    menuPrestamos();
+                    menuCliente();
+                    break;
+                case 4:
+                    menuListas();
                     break;
             }
         } while (opcion != 9);
-
         sc.close();
     }
-        
-     
+    
+    public void menuArticulo() {
+        Scanner sc = new Scanner(System.in);
+        int opcion;
+
+        do {
+            System.out.println("\n--- MENU ARTICULO ---");
+            System.out.println("1. Agregar Articulo");
+            System.out.println("4. Listar Articulos");
+            System.out.println("9. Salir");
+            opcion = sc.nextInt();
+
+            switch (opcion) {
+                case 1:
+                    
+                    break;
+                case 2:
+                    listaArticulos();
+                    break;
+                case 3:
+
+                    break;
+                case 4:
+
+                    break;
+            }
+        } while (opcion != 9);
+        sc.close();
+    }
+    
+    public void menuPedido() {
+        Scanner sc = new Scanner(System.in);
+        int opcion;
+
+        do {
+            System.out.println("\n--- MENU PEDIDO ---");
+            System.out.println("1. Nuevo pedido");
+            System.out.println("2. Listar Pedidos");
+            System.out.println("9. Salir");
+            opcion = sc.nextInt();
+
+            switch (opcion) {
+                case 1:
+                    nuevoPedido();
+                    break;
+                case 2:
+                    
+                    break;
+                case 3:
+                    
+                    break;
+                case 4:
+                    listarPedidosPorTotal();
+                    break;
+            }
+        } while (opcion != 9);
+        sc.close();
+    }
+    
+    public void menuCliente() {
+        Scanner sc = new Scanner(System.in);
+        int opcion;
+
+        do {
+            System.out.println("\n--- MENU CLIENTE ---");
+            System.out.println("1. Agregar Cliente");
+            System.out.println("2. Listar Clientes");
+            System.out.println("9. Salir");
+            opcion = sc.nextInt();
+
+            switch (opcion) {
+                case 1:
+                    
+                    break;
+                case 2:
+                    listaClientes();
+                    break;
+                case 3:
+                    
+                    break;
+                case 4:
+
+                    break;
+            }
+        } while (opcion != 9);
+        sc.close();
+    }
+    
+    public void menuListas() {
+        Scanner sc = new Scanner(System.in);
+        int opcion;
+
+        do {
+            System.out.println("\n--- LISTAS ---");
+            System.out.println("1. Lista pedidos ");
+            System.out.println("2. Lista Articulo (Por precio)");
+            System.out.println("3. Lista Cliente (Por nombre)");
+            System.out.println("9. Salir");
+            opcion = sc.nextInt();
+
+            switch (opcion) {
+                case 1:
+                    listarPedidosPorTotal2();
+                    break;
+                case 2:
+                    listaArticulos();
+                    break;
+                case 3:
+                    listaClientes();
+                    break;
+            }
+        } while (opcion != 9);
+        sc.close();
+    }
+    
+//</editor-fold>
+    
+//<editor-fold defaultstate="collapsed" desc="GESTION LISTAS">
+    
+    public void listaPedidos(){
+        Collections.sort(pedidos);
+        for (Pedido p : pedidos) {
+            System.out.println(p);
+        }
+    }  
+    
+    public void listaArticulos(){
+        ArrayList<Articulo> articulosAux = new ArrayList (articulos.values());
+        Collections.sort(articulosAux, new ComparaArticuloPorPrecio());
+        for (Articulo a : articulosAux) {
+            System.out.println(a);
+        }
+    }
+    
+    public void listaClientes(){
+        ArrayList<Cliente> clientesAux = new ArrayList (clientes.values());
+        Collections.sort(clientesAux, new ComparaClientesPorOrden());
+        for (Cliente c : clientesAux) {
+            System.out.println(c);
+        }
+    }
+    
+    public void listarPedidosPorTotal(){
+        pedidos.stream().sorted().forEach(System.out::println);
+        System.out.println("");
+        articulos.values().stream().sorted().forEach(System.out::println);
+        System.out.println("");
+        articulos.values().stream().sorted(new ComparaArticulosPorExistencias()).forEach(System.out::println);
+        System.out.println("");
+        articulos.values().stream().sorted(new ComparaArticuloPorPrecio()).forEach(System.out::println);
+    }
+    
+//</editor-fold> 
+    
+    public double totalPedido(Pedido p)
+    {
+        double total=0;
+        for (LineaPedido l:p.getCestaCompra())
+        {
+            total+=(articulos.get(l.getIdArticulo()).getPvp())
+                    *l.getUnidades();
+        }
+        return total;
+    }
+    
+    public void listarPedidosPorTotal2(){
+         
+        pedidos.stream().sorted(Comparator.comparing(p -> totalPedido(p)))
+                .forEach(p -> System.out.println(p + "\t - IMPORTE TOTAL:" + totalPedido(p)));
+              
+    }
+    
+    
 }

@@ -8,7 +8,8 @@ package davidceducastur.es.tiendainformatica;
  *
  * @author alu03d
  */
-public class Articulo {
+
+public class Articulo implements Comparable<Articulo> {
    
     private String idArticulo;
     private String descripcion;
@@ -58,7 +59,10 @@ public class Articulo {
     public String toString() {
         return "Articulo{" + "idArticulo=" + idArticulo + ", descripcion=" + descripcion + ", existencias=" + existencias + ", pvp=" + pvp + '}';
     }
-    
-    
-    
+
+    @Override
+    public int compareTo(Articulo a) {
+        return Double.compare(this.pvp, a.pvp);
+    }
 }
+
