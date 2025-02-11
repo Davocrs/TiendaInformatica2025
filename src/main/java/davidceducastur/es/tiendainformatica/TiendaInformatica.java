@@ -67,7 +67,7 @@ public class TiendaInformatica {
             if (dniT.isBlank()) {
                 break;
             }
-            if (!MetodosAuxiliares.validarDNI(dniT) || !clientes.containsKey(dniT)) {
+            if (!MetodosAux.validarDNI(dniT) || !clientes.containsKey(dniT)) {
                 System.out.println("El DNI no es válido O NO ES CLIENTE DE LA TIENDA");
             };
         } while (!clientes.containsKey(dniT));
@@ -84,7 +84,7 @@ public class TiendaInformatica {
                     System.out.print("(" + articulos.get(idT).getDescripcion() + ") - UNIDADES? ");
                     do {
                         pedidasS = sc.nextLine();
-                    } while (!MetodosAuxiliares.esInt(pedidasS));
+                    } while (!MetodosAux.esInt(pedidasS));
 
                     pedidas = Integer.parseInt(pedidasS);
 
@@ -127,30 +127,6 @@ public class TiendaInformatica {
         }
     }
 
-    public void cargaDatos() {
-
-        clientes.put("80580845T", new Cliente("80580845T", "ANA ", "658111111", "ana@gmail.com"));
-        clientes.put("36347775R", new Cliente("36347775R", "LOLA", "649222222", "lola@gmail.com"));
-        clientes.put("63921307Y", new Cliente("63921307Y", "JUAN", "652333333", "juan@gmail.com"));
-        clientes.put("02337565Y", new Cliente("02337565Y", "EDU", "634567890", "edu@gmail.com"));
-
-        articulos.put("1-11", new Articulo("1-11", "RATON LOGITECH ST ", 14, 15));
-        articulos.put("1-22", new Articulo("1-22", "TECLADO STANDARD  ", 9, 18));
-        articulos.put("2-11", new Articulo("2-11", "HDD SEAGATE 1 TB  ", 16, 80));
-        articulos.put("2-22", new Articulo("2-22", "SSD KINGSTOM 256GB", 9, 70));
-        articulos.put("2-33", new Articulo("2-33", "SSD KINGSTOM 512GB", 0, 200));
-        articulos.put("3-22", new Articulo("3-22", "EPSON PRINT XP300 ", 5, 80));
-        articulos.put("4-11", new Articulo("4-11", "ASUS  MONITOR  22 ", 5, 100));
-        articulos.put("4-22", new Articulo("4-22", "HP MONITOR LED 28 ", 5, 180));
-        articulos.put("4-33", new Articulo("4-33", "SAMSUNG ODISSEY G5", 12, 580));
-
-        LocalDate hoy = LocalDate.now();
-        pedidos.add(new Pedido("80580845T-001/2024", clientes.get("80580845T"), hoy.minusDays(1), new ArrayList<>(List.of(new LineaPedido("1-11", 3), new LineaPedido("4-22", 3)))));
-        pedidos.add(new Pedido("80580845T-002/2024", clientes.get("80580845T"), hoy.minusDays(2), new ArrayList<>(List.of(new LineaPedido("4-11", 3), new LineaPedido("4-22", 2), new LineaPedido("4-33", 4)))));
-        pedidos.add(new Pedido("36347775R-001/2024", clientes.get("36347775R"), hoy.minusDays(3), new ArrayList<>(List.of(new LineaPedido("4-22", 1), new LineaPedido("2-22", 3)))));
-        pedidos.add(new Pedido("36347775R-002/2024", clientes.get("36347775R"), hoy.minusDays(5), new ArrayList<>(List.of(new LineaPedido("4-33", 3), new LineaPedido("2-11", 3)))));
-        pedidos.add(new Pedido("63921307Y-001/2024", clientes.get("63921307Y"), hoy.minusDays(4), new ArrayList<>(List.of(new LineaPedido("2-11", 5), new LineaPedido("2-33", 3), new LineaPedido("4-33", 2)))));
-    }
     
 //<editor-fold defaultstate="collapsed" desc="MENUS">
     
@@ -230,13 +206,13 @@ public class TiendaInformatica {
                     nuevoPedido();
                     break;
                 case 2:
-                    
+                    listarPedidosPorTotal();
                     break;
                 case 3:
                     
                     break;
                 case 4:
-                    listarPedidosPorTotal();
+                    
                     break;
             }
         } while (opcion != 9);
@@ -356,5 +332,28 @@ public class TiendaInformatica {
               
     }
     
-    
+    public void cargaDatos() {
+
+        clientes.put("80580845T", new Cliente("80580845T", "ANA ", "658111111", "ana@gmail.com"));
+        clientes.put("36347775R", new Cliente("36347775R", "LOLA", "649222222", "lola@gmail.com"));
+        clientes.put("63921307Y", new Cliente("63921307Y", "JUAN", "652333333", "juan@gmail.com"));
+        clientes.put("02337565Y", new Cliente("02337565Y", "EDU", "634567890", "edu@gmail.com"));
+
+        articulos.put("1-11", new Articulo("1-11", "RATON LOGITECH ST ", 14, 15));
+        articulos.put("1-22", new Articulo("1-22", "TECLADO STANDARD  ", 9, 18));
+        articulos.put("2-11", new Articulo("2-11", "HDD SEAGATE 1 TB  ", 16, 80));
+        articulos.put("2-22", new Articulo("2-22", "SSD KINGSTOM 256GB", 9, 70));
+        articulos.put("2-33", new Articulo("2-33", "SSD KINGSTOM 512GB", 0, 200));
+        articulos.put("3-22", new Articulo("3-22", "EPSON PRINT XP300 ", 5, 80));
+        articulos.put("4-11", new Articulo("4-11", "ASUS  MONITOR  22 ", 5, 100));
+        articulos.put("4-22", new Articulo("4-22", "HP MONITOR LED 28 ", 5, 180));
+        articulos.put("4-33", new Articulo("4-33", "SAMSUNG ODISSEY G5", 12, 580));
+
+        LocalDate hoy = LocalDate.now();
+        pedidos.add(new Pedido("80580845T-001/2024", clientes.get("80580845T"), hoy.minusDays(1), new ArrayList<>(List.of(new LineaPedido("1-11", 3), new LineaPedido("4-22", 3)))));
+        pedidos.add(new Pedido("80580845T-002/2024", clientes.get("80580845T"), hoy.minusDays(2), new ArrayList<>(List.of(new LineaPedido("4-11", 3), new LineaPedido("4-22", 2), new LineaPedido("4-33", 4)))));
+        pedidos.add(new Pedido("36347775R-001/2024", clientes.get("36347775R"), hoy.minusDays(3), new ArrayList<>(List.of(new LineaPedido("4-22", 1), new LineaPedido("2-22", 3)))));
+        pedidos.add(new Pedido("36347775R-002/2024", clientes.get("36347775R"), hoy.minusDays(5), new ArrayList<>(List.of(new LineaPedido("4-33", 3), new LineaPedido("2-11", 3)))));
+        pedidos.add(new Pedido("63921307Y-001/2024", clientes.get("63921307Y"), hoy.minusDays(4), new ArrayList<>(List.of(new LineaPedido("2-11", 5), new LineaPedido("2-33", 3), new LineaPedido("4-33", 2)))));
+    }
 }
