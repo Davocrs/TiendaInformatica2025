@@ -11,7 +11,7 @@ import java.util.ArrayList;
  *
  * @author alu03d
  */
-public class Pedido {
+public class Pedido implements Comparable <Pedido> {
     
     private String idPedido;
     private Cliente clientePedido;
@@ -49,7 +49,7 @@ public class Pedido {
         this.fechaPedido = fechaPedido;
     }
 
-    public ArrayList getCestaCompra() {
+    public  ArrayList<LineaPedido> getCestaCompra() {
         return cestaCompra;
     }
 
@@ -59,7 +59,12 @@ public class Pedido {
 
     @Override
     public String toString() {
-        return "Pedido{" + "idPedido=" + idPedido + ", clientePedido=" + clientePedido + ", fechaPedido=" + fechaPedido + ", cestaCompra=" + cestaCompra + '}';
+        return idPedido + " - " + fechaPedido + " - " + clientePedido + " - " + cestaCompra + '}';
+    }
+
+    @Override
+    public int compareTo(Pedido p) {
+        return this.fechaPedido.compareTo(p.getFechaPedido());
     }
             
 }
