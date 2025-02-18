@@ -256,7 +256,8 @@ public class TiendaInformatica {
             System.out.println("\n--- LISTAS ---");
             System.out.println("1. Lista pedidos ");
             System.out.println("2. Lista Articulo (Por precio)");
-            System.out.println("3. Lista Cliente (Por nombre)");
+            System.out.println("3. Lista aticulos de ");
+            System.out.println("4. Lista Cliente (Por nombre)");
             System.out.println("9. Salir");
             opcion = sc.nextInt();
 
@@ -268,6 +269,9 @@ public class TiendaInformatica {
                     listaArticulos();
                     break;
                 case 3:
+                    
+                    break;
+                case 4:
                     listaClientes();
                     break;
             }
@@ -312,6 +316,26 @@ public class TiendaInformatica {
         articulos.values().stream().sorted(new ComparaArticuloPorPrecio()).forEach(System.out::println);
     }
     
+    public void listarPedidosPorTotal2(){
+        
+        Scanner sc = new Scanner(System.in);
+        pedidos.stream().sorted(Comparator.comparing(p -> totalPedido(p)))
+                .forEach(p -> System.out.println(p + "\t - IMPORTE TOTAL:" + totalPedido(p)));
+        
+        System.out.println("Teclea el nombre de un cliente para ver su pedido:");
+        String nombre = sc.next().toUpperCase();
+        pedidos.stream().filter(p -> p.getClientePedido().getNombre().equals(nombre))
+                .filter(p -> totalPedido(p)>500)
+                .sorted(Comparator.comparing(p -> totalPedido((Pedido) p)).reversed())
+                .forEach(p -> System.out.println(p + "\t - IMPORTE TOTAL:" + totalPedido(p)));
+        
+        System.out.println("Teclea la seleccion");
+        char s=sc.next().charAt(0);
+        articulos.values().stream().filter(a->a.getIdArticulo().charAt(0)==s)
+                .sorted(new ComparaArticuloPorPrecio()).forEach(System.out::println);
+              
+    }
+    
 //</editor-fold> 
     
     public double totalPedido(Pedido p)
@@ -323,13 +347,6 @@ public class TiendaInformatica {
                     *l.getUnidades();
         }
         return total;
-    }
-    
-    public void listarPedidosPorTotal2(){
-         
-        pedidos.stream().sorted(Comparator.comparing(p -> totalPedido(p)))
-                .forEach(p -> System.out.println(p + "\t - IMPORTE TOTAL:" + totalPedido(p)));
-              
     }
     
     public void cargaDatos() {
