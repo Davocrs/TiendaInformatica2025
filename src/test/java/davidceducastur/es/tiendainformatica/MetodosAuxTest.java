@@ -42,23 +42,22 @@ public class MetodosAuxTest {
      */
     @Test
     public void testEsInt() {
+        System.out.println("Test para el metodo esInt");
+        assertTrue(MetodosAux.esInt("-5"),"El -5 es Int");
+        assertTrue(MetodosAux.esInt("5"),"El 5 es Int");
+        assertFalse(MetodosAux.esInt("5.5"),"El 5.5 no es Int");
+        assertFalse(MetodosAux.esInt("xty"),"xty no es Int");
         
     }
 
-    /**
-     * Test of esDouble method, of class MetodosAux.
-     */
     @Test
     public void testEsDouble() {
-        
+        System.out.println("Test para el metodo esDoble");
     }
 
-    /**
-     * Test of validarDNI method, of class MetodosAux.
-     */
     @Test
     public void testValidarDNI() {
-        
+        System.out.println("Test para el metodo ValidarDni");
     }
     
 }
