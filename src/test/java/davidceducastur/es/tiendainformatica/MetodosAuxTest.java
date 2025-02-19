@@ -21,8 +21,7 @@ public class MetodosAuxTest {
     }
     
     @BeforeAll
-    public static void setUpClass() {
-        
+    public static void setUpClass() {   
     }
     
     @AfterAll
@@ -37,9 +36,6 @@ public class MetodosAuxTest {
     public void tearDown() {
     }
 
-    /**
-     * Test of esInt method, of class MetodosAux.
-     */
     @Test
     public void testEsInt() {
         System.out.println("Test para el metodo esInt");
