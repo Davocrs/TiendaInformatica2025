@@ -4,11 +4,13 @@
  */
 package davidceducastur.es.tiendainformatica;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alu03d
  */
-public class Cliente {
+public class Cliente implements Comparable <Cliente>, Serializable {
     
     private String dni;
     private String nombre;
@@ -57,6 +59,11 @@ public class Cliente {
     @Override
     public String toString() {
         return "Cliente{" + "dni=" + dni + ", nombre=" + nombre + ", telefono=" + telefono + ", email=" + email + '}';
+    }
+
+    @Override
+    public int compareTo(Cliente o) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
 }

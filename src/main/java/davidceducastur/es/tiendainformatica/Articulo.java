@@ -4,12 +4,14 @@
  */
 package davidceducastur.es.tiendainformatica;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alu03d
  */
 
-public class Articulo implements Comparable<Articulo> {
+public class Articulo implements Comparable<Articulo>, Serializable {
    
     private String idArticulo;
     private String descripcion;

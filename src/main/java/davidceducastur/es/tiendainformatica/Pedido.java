@@ -4,6 +4,7 @@
  */
 package davidceducastur.es.tiendainformatica;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -11,7 +12,7 @@ import java.util.ArrayList;
  *
  * @author alu03d
  */
-public class Pedido implements Comparable <Pedido> {
+public class Pedido implements Comparable <Pedido>, Serializable{
     
     private String idPedido;
     private Cliente clientePedido;

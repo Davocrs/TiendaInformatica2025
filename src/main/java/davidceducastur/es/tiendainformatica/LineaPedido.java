@@ -4,11 +4,13 @@
  */
 package davidceducastur.es.tiendainformatica;
 
+import java.io.Serializable;
+
 /**
  *
  * @author alu03d
  */
-public class LineaPedido {
+public class LineaPedido implements Comparable <LineaPedido>, Serializable {
     
     private String idArticulo;
     private int unidades;
@@ -37,6 +39,11 @@ public class LineaPedido {
     @Override
     public String toString() {
         return "LineaPedido{" + "idArticulo=" + idArticulo + ", unidades=" + unidades + '}';
+    }
+
+    @Override
+    public int compareTo(LineaPedido o) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
 }

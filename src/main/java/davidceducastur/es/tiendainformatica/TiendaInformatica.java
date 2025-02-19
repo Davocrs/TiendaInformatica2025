@@ -140,6 +140,7 @@ public class TiendaInformatica {
             System.out.println("2. Menu Pedido");
             System.out.println("3. Menu cliente");
             System.out.println("4. Listas");
+            System.out.println("5. Copia de seguridad");
             System.out.println("9. Salir");
             opcion = sc.nextInt();
 
