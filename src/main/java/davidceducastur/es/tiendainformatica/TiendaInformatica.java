@@ -395,17 +395,17 @@ public class TiendaInformatica {
             articulos = (HashMap<String,Articulo>) oisArticulos.readObject();
             clientes = (HashMap<String,Cliente>) oisClientes.readObject();
             
-            Pedido p=null;
+            Pedido p;
             while ( (p=(Pedido)oisPedidos.readObject()) != null){
                 pedidos.add(p);
             }
             
-            Articulo a=null;
+            Articulo a;
             while ( (a=(Articulo)oisArticulos.readObject()) != null){
                 articulos.put(a.getIdArticulo(), a);
             }
             
-            Cliente c=null;
+            Cliente c;
             while ( (c=(Cliente)oisClientes.readObject()) != null){
                 clientes.put(c.getDni(), c);
             }
