@@ -4,6 +4,12 @@
 
 package davidceducastur.es.tiendainformatica;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,10 +29,13 @@ public class TiendaInformatica {
     private static Map<String, Articulo> articulos = new HashMap<>();
     private static List<Pedido> pedidos = new ArrayList<>();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         TiendaInformatica t = new TiendaInformatica();
-        t.cargaDatos();
+        //t.cargaDatos();
+        t.leerArchivos();
         t.menuPrincipal();
+        t.backup();
+       
     }
 
     public void stock(String id, int unidadesPed) throws StockAgotado, StockInsuficiente {
@@ -169,7 +178,7 @@ public class TiendaInformatica {
         do {
             System.out.println("\n--- MENU ARTICULO ---");
             System.out.println("1. Agregar Articulo");
-            System.out.println("4. Listar Articulos");
+            System.out.println("2. Listar Articulos");
             System.out.println("9. Salir");
             opcion = sc.nextInt();
 
@@ -257,23 +266,23 @@ public class TiendaInformatica {
             System.out.println("\n--- LISTAS ---");
             System.out.println("1. Lista pedidos ");
             System.out.println("2. Lista Articulo (Por precio)");
-            System.out.println("3. Lista aticulos de ");
-            System.out.println("4. Lista Cliente (Por nombre)");
+            System.out.println("3. Lista Cliente (Por nombre)");
             System.out.println("9. Salir");
             opcion = sc.nextInt();
 
             switch (opcion) {
                 case 1:
-                    listarPedidosPorTotal2();
+                    listaPedidos();
+                    //listarPedidosPorTotal2();
                     break;
                 case 2:
                     listaArticulos();
                     break;
                 case 3:
-                    
+                    listaClientes();
                     break;
                 case 4:
-                    listaClientes();
+                    
                     break;
             }
         } while (opcion != 9);
@@ -289,20 +298,22 @@ public class TiendaInformatica {
         for (Pedido p : pedidos) {
             System.out.println(p);
         }
+        System.out.println("");
     }  
     
     public void listaArticulos(){
-        ArrayList<Articulo> articulosAux = new ArrayList (articulos.values());
-        Collections.sort(articulosAux, new ComparaArticuloPorPrecio());
-        for (Articulo a : articulosAux) {
+        /*ArrayList<Articulo> articulosAux = new ArrayList (articulos.values());
+        Collections.sort(articulosAux, new ComparaArticuloPorPrecio());*/
+        for (Articulo a : articulos.values()) {
             System.out.println(a);
         }
+        System.out.println("");
     }
     
     public void listaClientes(){
-        ArrayList<Cliente> clientesAux = new ArrayList (clientes.values());
-        Collections.sort(clientesAux, new ComparaClientesPorOrden());
-        for (Cliente c : clientesAux) {
+       /* ArrayList<Cliente> clientesAux = new ArrayList (clientes.values());
+        Collections.sort(clientesAux, new ComparaClientesPorOrden());^*/
+        for (Cliente c : clientes.values()) {
             System.out.println(c);
         }
     }
@@ -348,6 +359,49 @@ public class TiendaInformatica {
                     *l.getUnidades();
         }
         return total;
+    }
+    
+    public void backup() {
+        try (ObjectOutputStream oosArticulos = new ObjectOutputStream(new FileOutputStream("articulos.dat"));
+            ObjectOutputStream oosClientes = new ObjectOutputStream(new FileOutputStream("clientes.dat"));
+            ObjectOutputStream oosPedidos = new ObjectOutputStream(new FileOutputStream("pedidos.dat"))) 
+        {
+            oosArticulos.writeObject(articulos);
+            oosClientes.writeObject(clientes);
+            for (Pedido p : pedidos) {
+                oosPedidos.writeObject(p);
+            }
+            System.out.println("Copia de seguridad realizada con exito");
+        } 
+        catch (FileNotFoundException e) {
+                System.out.println(e.toString());
+        } 
+        catch (IOException e) {
+                System.out.println(e.toString());
+        }
+    }
+    
+    public void leerArchivos() {
+        try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream("articulos.dat"));
+            ObjectInputStream oisClientes = new ObjectInputStream(new FileInputStream("clientes.dat"));
+            ObjectInputStream oisPedidos = new ObjectInputStream(new FileInputStream("pedidos.dat"))) 
+        {
+            articulos = (HashMap<String,Articulo>) oisArticulos.readObject();
+            clientes = (HashMap<String,Cliente>) oisClientes.readObject();
+            
+            Pedido p=null;
+            while ( (p=(Pedido)oisPedidos.readObject()) != null){
+                pedidos.add(p);
+            }
+            System.out.println("Colecciones importadas con exito");
+        } 
+        catch (FileNotFoundException e) {
+                System.out.println(e.toString());
+        } 
+        
+        catch (ClassNotFoundException | IOException e) {
+            System.out.println(e.toString());
+        }
     }
     
     public void cargaDatos() {
