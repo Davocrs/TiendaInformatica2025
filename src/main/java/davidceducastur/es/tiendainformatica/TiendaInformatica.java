@@ -366,8 +366,14 @@ public class TiendaInformatica {
             ObjectOutputStream oosClientes = new ObjectOutputStream(new FileOutputStream("clientes.dat"));
             ObjectOutputStream oosPedidos = new ObjectOutputStream(new FileOutputStream("pedidos.dat"))) 
         {
-            oosArticulos.writeObject(articulos);
-            oosClientes.writeObject(clientes);
+            for (Articulo a : articulos.values()) {
+                oosArticulos.writeObject(a);
+            }
+            
+            for (Cliente c : clientes.values()) {
+                oosClientes.writeObject(c);
+            }
+            
             for (Pedido p : pedidos) {
                 oosPedidos.writeObject(p);
             }
@@ -392,6 +398,16 @@ public class TiendaInformatica {
             Pedido p=null;
             while ( (p=(Pedido)oisPedidos.readObject()) != null){
                 pedidos.add(p);
+            }
+            
+            Articulo a=null;
+            while ( (a=(Articulo)oisArticulos.readObject()) != null){
+                articulos.put(a.getIdArticulo(), a);
+            }
+            
+            Cliente c=null;
+            while ( (c=(Cliente)oisClientes.readObject()) != null){
+                clientes.put(c.getDni(), c);
             }
             System.out.println("Colecciones importadas con exito");
         } 
