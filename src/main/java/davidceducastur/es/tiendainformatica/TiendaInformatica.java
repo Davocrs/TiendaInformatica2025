@@ -243,6 +243,7 @@ public class TiendaInformatica {
             System.out.println("1. Agregar Cliente");
             System.out.println("2. Listar Clientes");
             System.out.println("3. backup en archivo csv");
+            System.out.println("4. Leer clientes en archivos");
             System.out.println("9. Salir");
             opcion = sc.nextInt();
 
@@ -257,7 +258,7 @@ public class TiendaInformatica {
                     clientesTxtBackup();
                     break;
                 case 4:
-
+                    clientesTxtLeer();
                     break;
             }
         } while (opcion != 9);

@@ -60,7 +60,7 @@ public class Pedido implements Comparable <Pedido>, Serializable{
 
     @Override
     public String toString() {
-        return idPedido + " - " + fechaPedido + " - " + clientePedido + " - " + cestaCompra + '}';
+        return idPedido + " - " + fechaPedido + " - " + clientePedido + " - " + cestaCompra;
     }
 
     @Override

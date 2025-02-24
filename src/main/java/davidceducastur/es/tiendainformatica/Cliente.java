@@ -58,7 +58,7 @@ public class Cliente implements Comparable <Cliente>, Serializable {
 
     @Override
     public String toString() {
-        return "Cliente{" + "dni=" + dni + ", nombre=" + nombre + ", telefono=" + telefono + ", email=" + email + '}';
+        return dni + "-" + nombre + "-" + telefono + "-" + email;
     }
 
     @Override

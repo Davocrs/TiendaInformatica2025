@@ -38,7 +38,7 @@ public class LineaPedido implements Comparable <LineaPedido>, Serializable {
 
     @Override
     public String toString() {
-        return "LineaPedido{" + "idArticulo=" + idArticulo + ", unidades=" + unidades + '}';
+        return idArticulo + "-" + unidades;
     }
 
     @Override
