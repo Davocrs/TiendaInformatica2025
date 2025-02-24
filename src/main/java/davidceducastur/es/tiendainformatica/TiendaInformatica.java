@@ -388,37 +388,40 @@ public class TiendaInformatica {
     }
     
     public void leerArchivos() {
-        try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream("articulos.dat"));
-            ObjectInputStream oisClientes = new ObjectInputStream(new FileInputStream("clientes.dat"));
-            ObjectInputStream oisPedidos = new ObjectInputStream(new FileInputStream("pedidos.dat"))) 
-        {
-            articulos = (HashMap<String,Articulo>) oisArticulos.readObject();
-            clientes = (HashMap<String,Cliente>) oisClientes.readObject();
-            
-            Pedido p;
-            while ( (p=(Pedido)oisPedidos.readObject()) != null){
-                pedidos.add(p);
-            }
-            
+        try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream("articulos.dat"))){
             Articulo a;
             while ( (a=(Articulo)oisArticulos.readObject()) != null){
-                articulos.put(a.getIdArticulo(), a);
-            }
-            
-            Cliente c;
-            while ( (c=(Cliente)oisClientes.readObject()) != null){
-                clientes.put(c.getDni(), c);
-            }
-            System.out.println("Colecciones importadas con exito");
-        } 
-        catch (FileNotFoundException e) {
-                System.out.println(e.toString());
+                 articulos.put(a.getIdArticulo(), a);
+            } 
+	} catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
         } 
         
-        catch (ClassNotFoundException | IOException e) {
-            System.out.println(e.toString());
+        try (ObjectInputStream oisClientes = new ObjectInputStream(new FileInputStream("clientes.dat"))){
+            Cliente c;
+            while ( (c=(Cliente)oisClientes.readObject()) != null){
+                 clientes.put(c.getDni(), c);
+            } 
+	} catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
         }
-    }
+                
+        try (ObjectInputStream oisPedidos = new ObjectInputStream(new FileInputStream("pedidos.dat"))){
+            Pedido p;
+            while ( (p=(Pedido)oisPedidos.readObject()) != null){
+                 pedidos.add(p);
+            } 
+	} catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
+        }
+       
+    }   
     
     public void cargaDatos() {
 
