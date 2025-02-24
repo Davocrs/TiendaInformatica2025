@@ -4,9 +4,13 @@
 
 package davidceducastur.es.tiendainformatica;
 
+import java.io.BufferedWriter;
+import java.io.EOFException;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -29,7 +33,7 @@ public class TiendaInformatica {
     private static Map<String, Articulo> articulos = new HashMap<>();
     private static List<Pedido> pedidos = new ArrayList<>();
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         TiendaInformatica t = new TiendaInformatica();
         //t.cargaDatos();
         t.leerArchivos();
@@ -137,7 +141,7 @@ public class TiendaInformatica {
     }
 
     
-//<editor-fold defaultstate="collapsed" desc="MENUS">
+//<editor-fold defaultstate="collapsed" desc="GESTION MENUS">
     
     public void menuPrincipal() {
         Scanner sc = new Scanner(System.in);
@@ -149,7 +153,6 @@ public class TiendaInformatica {
             System.out.println("2. Menu Pedido");
             System.out.println("3. Menu cliente");
             System.out.println("4. Listas");
-            System.out.println("5. Copia de seguridad");
             System.out.println("9. Salir");
             opcion = sc.nextInt();
 
@@ -179,6 +182,8 @@ public class TiendaInformatica {
             System.out.println("\n--- MENU ARTICULO ---");
             System.out.println("1. Agregar Articulo");
             System.out.println("2. Listar Articulos");
+            System.out.println("3. Importar articulos por seccion");
+            System.out.println("4. Backup articulos por seccion");
             System.out.println("9. Salir");
             opcion = sc.nextInt();
 
@@ -190,10 +195,10 @@ public class TiendaInformatica {
                     listaArticulos();
                     break;
                 case 3:
-
+                    leerArchivosSeccion();
                     break;
                 case 4:
-
+                    backupPorSeccion();
                     break;
             }
         } while (opcion != 9);
@@ -237,6 +242,7 @@ public class TiendaInformatica {
             System.out.println("\n--- MENU CLIENTE ---");
             System.out.println("1. Agregar Cliente");
             System.out.println("2. Listar Clientes");
+            System.out.println("3. backup en archivo csv");
             System.out.println("9. Salir");
             opcion = sc.nextInt();
 
@@ -248,7 +254,7 @@ public class TiendaInformatica {
                     listaClientes();
                     break;
                 case 3:
-                    
+                    clientesTxtBackup();
                     break;
                 case 4:
 
@@ -288,7 +294,7 @@ public class TiendaInformatica {
         } while (opcion != 9);
         sc.close();
     }
-    
+        
 //</editor-fold>
     
 //<editor-fold defaultstate="collapsed" desc="GESTION LISTAS">
@@ -395,6 +401,8 @@ public class TiendaInformatica {
             } 
 	} catch (FileNotFoundException e) {
                  System.out.println(e.toString());    
+        } catch (EOFException e){
+            
         } catch (ClassNotFoundException | IOException e) {
                 System.out.println(e.toString()); 
         } 
@@ -406,10 +414,13 @@ public class TiendaInformatica {
             } 
 	} catch (FileNotFoundException e) {
                  System.out.println(e.toString());    
+        } catch (EOFException e){
+            
         } catch (ClassNotFoundException | IOException e) {
                 System.out.println(e.toString()); 
         }
-                
+        
+        
         try (ObjectInputStream oisPedidos = new ObjectInputStream(new FileInputStream("pedidos.dat"))){
             Pedido p;
             while ( (p=(Pedido)oisPedidos.readObject()) != null){
@@ -417,14 +428,142 @@ public class TiendaInformatica {
             } 
 	} catch (FileNotFoundException e) {
                  System.out.println(e.toString());    
+        } catch (EOFException e){
+            
         } catch (ClassNotFoundException | IOException e) {
                 System.out.println(e.toString()); 
         }
        
     }   
     
-    public void cargaDatos() {
+    public void backupPorSeccion() {
+        Scanner sc = new Scanner(System.in);
+        try (ObjectOutputStream oosPerifericos = new ObjectOutputStream(new FileOutputStream("Perifericos.dat"));
+            ObjectOutputStream oosAlmacenamiento = new ObjectOutputStream(new FileOutputStream("Almacenamiento.dat"));
+            ObjectOutputStream oosImpresoras = new ObjectOutputStream(new FileOutputStream("Impresoras.dat"));
+            ObjectOutputStream oosMonitores = new ObjectOutputStream (new FileOutputStream("Monitores.dat"))) {
+	   	   
+            for (Articulo a : articulos.values()) {
+                char seccion=a.getIdArticulo().charAt(0);
+                switch (seccion) {
+                    case '1':
+                        oosPerifericos.writeObject(a);
+                        break;
+                    case '2':
+                        oosAlmacenamiento .writeObject(a);
+                        break;
+                    case '3':
+                        oosImpresoras.writeObject(a);
+                        break;
+                    case '4':
+                        oosMonitores.writeObject(a);
+                        break;
+                }
+            }
+            System.out.println("Copia de seguridad realizada con exito.");
+	    
+        } catch (FileNotFoundException e) {
+                 System.out.println(e.toString());                                                          
+        } catch (IOException e) {
+                 System.out.println(e.toString());
+        } 
+        /* PARA COMPROBAR QUE FUNCIONA, VERIFICAMOS QUE SE HAN CREADO LOS 4 ARCHIVOS EN LA CARPETA
+        RAÍZ DEL PROYECTO CON LA FECHA Y HORA ACTUAL - 
+        ... Y PARA COMPROBAR EL CONTENIDO DE LOS ARCHIVOS LEEREMOS/IMPRIMIREMOS "AL VUELO" SÓLO 1 DE ELLOS
+         CUYA SECCION SOLICITAMOS POR TECLADO
+        */
+                
+        System.out.println("Teclea la Seccion de los articulos CUYO ARCHIVO QUIERES COMPROBAR:");        
+        char seccion=sc.next().charAt(0);
+        String nombreArchivo=null;
+        switch (seccion) {
+                    case '1':
+                        nombreArchivo="Perifericos.dat";
+                        break;
+                    case '2':
+                        nombreArchivo="Almacenamiento.dat";
+                        break;
+                    case '3':
+                        nombreArchivo="Impresoras.dat";
+                        break;
+                    case '4':
+                        nombreArchivo="Monitores.dat";
+                        break;
+        }
+        Articulo a;
+        try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream(nombreArchivo))){
+            while ( (a=(Articulo)oisArticulos.readObject()) != null){
+                System.out.println(a);
+            } 
+        } catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (EOFException e){
+            
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
+        } 
+    }   
+    
+    /* METODO PARA LEER DESDE EL ARCHIVO articulos.dat SÓLO LOS ARTICULOS DE UNA DETERMINADA SECCION INTRODUCIDA POR TECLADO
 
+       LOS ARTICULOS DE LA SECCION ELEGIDA SE VAN CARGANDO EN UN ARRAYLIST AUXILIAR (articulosAux) Y SE MUESTRAN POR PANTALLA
+     */
+
+    public void leerArchivosSeccion() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Teclea la Seccion de los articulos que quieres recuperar:");        
+        String id=sc.next();
+        ArrayList<Articulo> articulosAux= new ArrayList();
+        Articulo a;
+        
+        try (ObjectInputStream oisArticulos = new ObjectInputStream(new FileInputStream("articulos.dat"))){
+            while ( (a=(Articulo)oisArticulos.readObject()) != null){
+                if (id.equals("5")){
+                    articulosAux.add(a);
+                }else if (a.getIdArticulo().startsWith(id)){
+                    articulosAux.add(a);
+                }
+            } 
+        } catch (FileNotFoundException e) {
+                 System.out.println(e.toString());    
+        } catch (EOFException e){
+            
+        } catch (ClassNotFoundException | IOException e) {
+                System.out.println(e.toString()); 
+        } 
+        
+        articulosAux.forEach(System.out::println);
+    }
+    
+    public void clientesTxtBackup() {
+        try(BufferedWriter bfwClientes=new BufferedWriter(new FileWriter("clientes.csv"))){
+            for (Cliente c : clientes.values()) {
+                bfwClientes.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
+            }
+        }catch (FileNotFoundException e) {
+                 System.out.println(e.toString());   
+        }catch(IOException e){
+            System.out.println(e.toString());
+        }
+    }  
+    
+    public void clientesTxtLeer() {
+        // LEEMOS LOS CLIENTES DESDE EL ARCHIVO .csv A UNA COLECCION HASHMAP AUXILIAR Y LA IMPRIMIMOS
+        HashMap <String,Cliente> clientesAux = new HashMap();
+        try(Scanner scClientes=new Scanner(new File("clientes.csv"))){
+            while (scClientes.hasNextLine()){
+                String [] atributos = scClientes.nextLine().split("[,]");                                                              
+                Cliente c=new Cliente(atributos[0],atributos[1],atributos[2],atributos[3]); 
+                clientesAux.put(atributos[0], c);
+            }
+        }catch(IOException e){
+            System.out.println(e.toString());
+        }
+        clientesAux.values().forEach(System.out::println);
+    } 
+    
+    public void cargaDatos() {
+        
         clientes.put("80580845T", new Cliente("80580845T", "ANA ", "658111111", "ana@gmail.com"));
         clientes.put("36347775R", new Cliente("36347775R", "LOLA", "649222222", "lola@gmail.com"));
         clientes.put("63921307Y", new Cliente("63921307Y", "JUAN", "652333333", "juan@gmail.com"));
