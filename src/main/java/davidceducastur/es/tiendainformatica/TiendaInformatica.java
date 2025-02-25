@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -29,9 +28,33 @@ import java.util.Scanner;
  */
 public class TiendaInformatica {
     
-    private static Map<String, Cliente> clientes = new HashMap<>();
-    private static Map<String, Articulo> articulos = new HashMap<>();
-    private static List<Pedido> pedidos = new ArrayList<>();
+    private  HashMap<String, Cliente> clientes = new HashMap<>();
+    private  HashMap<String, Articulo> articulos = new HashMap<>();
+    private  ArrayList<Pedido> pedidos = new ArrayList<>();
+
+    public HashMap<String, Cliente> getClientes() {
+        return clientes;
+    }
+
+    public void setClientes(HashMap<String, Cliente> clientes) {
+        this.clientes = clientes;
+    }
+
+    public HashMap<String, Articulo> getArticulos() {
+        return articulos;
+    }
+
+    public void setArticulos(HashMap<String, Articulo> articulos) {
+        this.articulos = articulos;
+    }
+
+    public ArrayList<Pedido> getPedidos() {
+        return pedidos;
+    }
+
+    public void setPedidos(ArrayList<Pedido> pedidos) {
+        this.pedidos = pedidos;
+    }
 
     public static void main(String[] args) {
         TiendaInformatica t = new TiendaInformatica();
@@ -467,7 +490,8 @@ public class TiendaInformatica {
                  System.out.println(e.toString());                                                          
         } catch (IOException e) {
                  System.out.println(e.toString());
-        } 
+        }
+        
         /* PARA COMPROBAR QUE FUNCIONA, VERIFICAMOS QUE SE HAN CREADO LOS 4 ARCHIVOS EN LA CARPETA
         RAÍZ DEL PROYECTO CON LA FECHA Y HORA ACTUAL - 
         ... Y PARA COMPROBAR EL CONTENIDO DE LOS ARCHIVOS LEEREMOS/IMPRIMIREMOS "AL VUELO" SÓLO 1 DE ELLOS
