@@ -45,5 +45,5 @@ public class LineaPedido implements Comparable <LineaPedido>, Serializable {
     public int compareTo(LineaPedido o) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
-    
+
 }
