@@ -39,8 +39,8 @@ public class Prueba5Marzo {
     
     public static void main(String[] args) {
         Prueba5Marzo c = new Prueba5Marzo();
-        c.cargaDatos();
-        //c.clientesTxtLeer();
+        //c.cargaDatos();
+        c.clientesTxtLeer();
         c.menu();
         c.clientesTxtBackup();      
     }
@@ -84,6 +84,7 @@ public class Prueba5Marzo {
     } 
     
     public void clientesTxtBackup() {
+        
     ArrayList<Cliente> clientesSin = new ArrayList<>();
     ArrayList<Cliente> clientesCon = new ArrayList<>();
 
@@ -124,6 +125,8 @@ public class Prueba5Marzo {
     } catch (IOException e) {
         System.out.println("Error al escribir los archivos: " + e.getMessage());
     }
+    
+        System.out.println("Copia de seguridad realizada");
 }
 
 public void clientesTxtLeer() {
@@ -131,7 +134,7 @@ public void clientesTxtLeer() {
     List<Cliente> clientesSin = new ArrayList<>();
     List<Cliente> clientesCon = new ArrayList<>();
 
-    try (Scanner scClientesSin = new Scanner(new File("clientesin.csv"))) {
+    try (Scanner scClientesSin = new Scanner(new File("clientesSin.csv"))) {
         while (scClientesSin.hasNextLine()) {
             String[] atributos = scClientesSin.nextLine().split("[,]");
             Cliente c = new Cliente(atributos[0], atributos[1], atributos[2], atributos[3]);
