@@ -465,8 +465,8 @@ public class TiendaInformatica {
         try (ObjectOutputStream oosPerifericos = new ObjectOutputStream(new FileOutputStream("Perifericos.dat"));
             ObjectOutputStream oosAlmacenamiento = new ObjectOutputStream(new FileOutputStream("Almacenamiento.dat"));
             ObjectOutputStream oosImpresoras = new ObjectOutputStream(new FileOutputStream("Impresoras.dat"));
-            ObjectOutputStream oosMonitores = new ObjectOutputStream (new FileOutputStream("Monitores.dat"))) {
-	   	   
+            ObjectOutputStream oosMonitores = new ObjectOutputStream (new FileOutputStream("Monitores.dat"))) 
+        {	   
             for (Articulo a : articulos.values()) {
                 char seccion=a.getIdArticulo().charAt(0);
                 switch (seccion) {
@@ -484,11 +484,12 @@ public class TiendaInformatica {
                         break;
                 }
             }
-            System.out.println("Copia de seguridad realizada con exito.");
-	    
-        } catch (FileNotFoundException e) {
+            System.out.println("Copia de seguridad realizada con exito.");	    
+        } 
+        catch (FileNotFoundException e) {
                  System.out.println(e.toString());                                                          
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
                  System.out.println(e.toString());
         }
         
