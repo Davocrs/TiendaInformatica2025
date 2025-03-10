@@ -5,15 +5,9 @@
 package davidceducastur.es.tiendainformatica;
 
 import java.io.BufferedWriter;
-import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -87,73 +81,106 @@ public class Prueba5Marzo {
         
     ArrayList<Cliente> clientesSin = new ArrayList<>();
     ArrayList<Cliente> clientesCon = new ArrayList<>();
+    ArrayList<Cliente> clientesMas1000 = new ArrayList<>();
 
-    for (Cliente c : clientes.values()) {
+    try (BufferedWriter bfwClientesCon = new BufferedWriter(new FileWriter("clientesCon.csv"));
+         BufferedWriter bfwClientesSin = new BufferedWriter(new FileWriter("clientesSin.csv"));
+         BufferedWriter bfwClientesMas1000 = new BufferedWriter(new FileWriter("clientesMas1000.csv"))){
+        
+        for (Cliente c : clientes.values()) {
         /* ESTILO CLASICO
             boolean tienePedido = false;
             for (Pedido p : pedidos){
                 if (p.getClientePedido() == c){
                     tienePedido = true;
                     break;
-                    }
                 }
+            }
             if (tienePedido){
-                clientesSin.add(c);
+                bfwClientesCon.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
             } else {
-                clientesCon.add(c);
+                bfwClientesSin.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
             }*/
         
          // ESTILO CON STREAMS Y EL METODO ANYMATCH
-        if (pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c))) {
-            clientesCon.add(c);
-        } else {
-            clientesSin.add(c);
-        }
-    }
-
-    try (BufferedWriter bfwClientesCon = new BufferedWriter(new FileWriter("clientesCon.csv"));
-         BufferedWriter bfwClientesSin = new BufferedWriter(new FileWriter("clientesSin.csv"))) {
-        
-        for (Cliente c : clientesCon) {
+        if (totalCliente(c)>=1000){
+            bfwClientesMas1000.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
             bfwClientesCon.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
-        }
-        
-        for (Cliente c : clientesSin) {
-            bfwClientesSin.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
+        }else if (totalCliente(c)>0){
+            bfwClientesCon.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
+            }else{
+               bfwClientesSin.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n"); 
+            }      
         }
         
     } catch (IOException e) {
         System.out.println("Error al escribir los archivos: " + e.getMessage());
     }
-    
         System.out.println("Copia de seguridad realizada");
-}
+    }
 
-public void clientesTxtLeer() {
+    public void clientesTxtLeer() {
+
+        List<Cliente> clientesSin = new ArrayList<>();
+        List<Cliente> clientesCon = new ArrayList<>();
+        List<Cliente> clientesMas1000 = new ArrayList<>();
+
+        try (Scanner scClientesSin = new Scanner(new File("clientesSin.csv"))) {
+            while (scClientesSin.hasNextLine()) {
+                String[] atributos = scClientesSin.nextLine().split("[,]");
+                Cliente c = new Cliente(atributos[0], atributos[1], atributos[2], atributos[3]);
+                clientesSin.add(c);
+            }
+        } catch (IOException e) {
+            System.out.println(e.toString());
+        }
+
+        try (Scanner scClientesCon = new Scanner(new File("clientesCon.csv"))) {
+            while (scClientesCon.hasNextLine()) {
+                String[] atributos = scClientesCon.nextLine().split("[,]");
+                Cliente c = new Cliente(atributos[0], atributos[1], atributos[2], atributos[3]);
+                clientesCon.add(c);
+            }
+        } catch (IOException e) {
+            System.out.println(e.toString());
+        }
+        
+        try (Scanner scClientesMas1000 = new Scanner(new File("clientesMas1000.csv"))) {
+            while (scClientesMas1000.hasNextLine()) {
+                String[] atributos = scClientesMas1000.nextLine().split("[,]");
+                Cliente c = new Cliente(atributos[0], atributos[1], atributos[2], atributos[3]);
+                clientesMas1000.add(c);
+            }
+        } catch (IOException e) {
+            System.out.println(e.toString());
+        }
+        
+        System.out.println("\nCLIENTES CON PEDIDOS:");
+        clientesCon.forEach(System.out::println);
+        System.out.println("\nCLIENTES SIN PEDIDOS:");
+        clientesSin.forEach(System.out::println);
+        System.out.println("\nCLIENTES CON PEDIDOS DE MAS DE 1000 EUROS GASTADOS:");
+        clientesMas1000.forEach(System.out::println);
+    }
+
+    public double totalPedido(Pedido p){
+        double total=0;
+        for (LineaPedido l:p.getCestaCompra())
+        {
+            total+=(articulos.get(l.getIdArticulo()).getPvp())*l.getUnidades();
+        }
+        return total;
+    }
     
-    List<Cliente> clientesSin = new ArrayList<>();
-    List<Cliente> clientesCon = new ArrayList<>();
-
-    try (Scanner scClientesSin = new Scanner(new File("clientesSin.csv"))) {
-        while (scClientesSin.hasNextLine()) {
-            String[] atributos = scClientesSin.nextLine().split("[,]");
-            Cliente c = new Cliente(atributos[0], atributos[1], atributos[2], atributos[3]);
-            clientesSin.add(c);
+    public double totalCliente(Cliente c){
+        double total=0;
+        for (Pedido p : pedidos){
+            if (p.getClientePedido().equals(c)){
+                total+=totalPedido(p);
+            } 
         }
-    } catch (IOException e) {
-        System.out.println(e.toString());
+        return total;
     }
-
-    try (Scanner scClientesCon = new Scanner(new File("clientesCon.csv"))) {
-        while (scClientesCon.hasNextLine()) {
-            String[] atributos = scClientesCon.nextLine().split("[,]");
-            Cliente c = new Cliente(atributos[0], atributos[1], atributos[2], atributos[3]);
-            clientesCon.add(c);
-        }
-    } catch (IOException e) {
-        System.out.println(e.toString());
-    }
-}
       
     public void menu() {
         Scanner sc = new Scanner(System.in);
