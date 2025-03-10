@@ -105,7 +105,7 @@ public class TiendaInformatica {
             }
             if (!MetodosAux.validarDNI(dniT) || !clientes.containsKey(dniT)) {
                 System.out.println("El DNI no es válido O NO ES CLIENTE DE LA TIENDA");
-            };
+            }
         } while (!clientes.containsKey(dniT));
 
         if (!dniT.isBlank()) {
@@ -385,8 +385,7 @@ public class TiendaInformatica {
         double total=0;
         for (LineaPedido l:p.getCestaCompra())
         {
-            total+=(articulos.get(l.getIdArticulo()).getPvp())
-                    *l.getUnidades();
+            total+=(articulos.get(l.getIdArticulo()).getPvp())*l.getUnidades();
         }
         return total;
     }
@@ -466,7 +465,7 @@ public class TiendaInformatica {
             ObjectOutputStream oosAlmacenamiento = new ObjectOutputStream(new FileOutputStream("Almacenamiento.dat"));
             ObjectOutputStream oosImpresoras = new ObjectOutputStream(new FileOutputStream("Impresoras.dat"));
             ObjectOutputStream oosMonitores = new ObjectOutputStream (new FileOutputStream("Monitores.dat"))) 
-        {	   
+        {   	   
             for (Articulo a : articulos.values()) {
                 char seccion=a.getIdArticulo().charAt(0);
                 switch (seccion) {
@@ -484,12 +483,11 @@ public class TiendaInformatica {
                         break;
                 }
             }
-            System.out.println("Copia de seguridad realizada con exito.");	    
-        } 
-        catch (FileNotFoundException e) {
+            System.out.println("Copia de seguridad realizada con exito.");
+	    
+        } catch (FileNotFoundException e) {
                  System.out.println(e.toString());                                                          
-        } 
-        catch (IOException e) {
+        } catch (IOException e) {
                  System.out.println(e.toString());
         }
         
@@ -606,10 +604,15 @@ public class TiendaInformatica {
         articulos.put("4-33", new Articulo("4-33", "SAMSUNG ODISSEY G5", 12, 580));
 
         LocalDate hoy = LocalDate.now();
-        pedidos.add(new Pedido("80580845T-001/2024", clientes.get("80580845T"), hoy.minusDays(1), new ArrayList<>(List.of(new LineaPedido("1-11", 3), new LineaPedido("4-22", 3)))));
-        pedidos.add(new Pedido("80580845T-002/2024", clientes.get("80580845T"), hoy.minusDays(2), new ArrayList<>(List.of(new LineaPedido("4-11", 3), new LineaPedido("4-22", 2), new LineaPedido("4-33", 4)))));
-        pedidos.add(new Pedido("36347775R-001/2024", clientes.get("36347775R"), hoy.minusDays(3), new ArrayList<>(List.of(new LineaPedido("4-22", 1), new LineaPedido("2-22", 3)))));
-        pedidos.add(new Pedido("36347775R-002/2024", clientes.get("36347775R"), hoy.minusDays(5), new ArrayList<>(List.of(new LineaPedido("4-33", 3), new LineaPedido("2-11", 3)))));
-        pedidos.add(new Pedido("63921307Y-001/2024", clientes.get("63921307Y"), hoy.minusDays(4), new ArrayList<>(List.of(new LineaPedido("2-11", 5), new LineaPedido("2-33", 3), new LineaPedido("4-33", 2)))));
+        pedidos.add(new Pedido("80580845T-001/2024", clientes.get("80580845T"), hoy.minusDays(1), new ArrayList<>
+        (List.of(new LineaPedido("1-11", 3), new LineaPedido("4-22", 3)))));
+        pedidos.add(new Pedido("80580845T-002/2024", clientes.get("80580845T"), hoy.minusDays(2), new ArrayList<>
+        (List.of(new LineaPedido("4-11", 3), new LineaPedido("4-22", 2), new LineaPedido("4-33", 4)))));
+        pedidos.add(new Pedido("36347775R-001/2024", clientes.get("36347775R"), hoy.minusDays(3), new ArrayList<>
+        (List.of(new LineaPedido("4-22", 1), new LineaPedido("2-22", 3)))));
+        pedidos.add(new Pedido("36347775R-002/2024", clientes.get("36347775R"), hoy.minusDays(5), new ArrayList<>
+        (List.of(new LineaPedido("4-33", 3), new LineaPedido("2-11", 3)))));
+        pedidos.add(new Pedido("63921307Y-001/2024", clientes.get("63921307Y"), hoy.minusDays(4), new ArrayList<>
+        (List.of(new LineaPedido("2-11", 5), new LineaPedido("2-33", 3), new LineaPedido("4-33", 2)))));
     }
 }
