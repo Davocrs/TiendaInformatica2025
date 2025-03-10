@@ -6,6 +6,7 @@ package davidceducastur.es.tiendainformatica;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -81,11 +82,13 @@ public class Prueba5Marzo {
         
     ArrayList<Cliente> clientesSin = new ArrayList<>();
     ArrayList<Cliente> clientesCon = new ArrayList<>();
-    ArrayList<Cliente> clientesMas1000 = new ArrayList<>();
+    ArrayList<Cliente> clientesMas1000 = new ArrayList<>();   
 
     try (BufferedWriter bfwClientesCon = new BufferedWriter(new FileWriter("clientesCon.csv"));
          BufferedWriter bfwClientesSin = new BufferedWriter(new FileWriter("clientesSin.csv"));
-         BufferedWriter bfwClientesMas1000 = new BufferedWriter(new FileWriter("clientesMas1000.csv"))){
+         BufferedWriter bfwClientesMas1000 = new BufferedWriter(new FileWriter("clientesMas1000.csv")))
+         
+    {
         
         for (Cliente c : clientes.values()) {
         /* ESTILO CLASICO
@@ -181,6 +184,27 @@ public class Prueba5Marzo {
         }
         return total;
     }
+    
+    public void clientePedido(){
+        try(BufferedWriter bfwClientePedido = new BufferedWriter(new FileWriter("clientePedido.csv"))){
+            for (Cliente c : clientes.values())
+                bfwClientePedido.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() 
+                        + "," + pedidos.stream().filter(p->p.getClientePedido().equals(c)).count() + "\n"); 
+        }catch (FileNotFoundException e) {
+                 System.out.println(e.toString());
+        }catch (IOException e) {
+            System.out.println(e.toString());
+        }
+    }
+    
+  /*int cuentaPedidos (Cliente c){
+        int contador = 0;
+        for (Pedido p : pedidos)
+            if(p.getClientePedido().equals(c)){
+                contador++;
+            }
+        return contador;
+    }*/
       
     public void menu() {
         Scanner sc = new Scanner(System.in);
