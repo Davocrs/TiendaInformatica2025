@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -34,8 +35,8 @@ public class Prueba5Marzo {
     
     public static void main(String[] args) {
         Prueba5Marzo c = new Prueba5Marzo();
-        //c.cargaDatos();
-        c.clientesTxtLeer();
+        c.cargaDatos();
+        //c.clientesTxtLeer();
         c.menu();
         c.clientesTxtBackup();      
     }
@@ -105,7 +106,7 @@ public class Prueba5Marzo {
                 bfwClientesSin.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
             }*/
         
-         // ESTILO CON STREAMS Y EL METODO ANYMATCH
+        // ESTILO CON STREAMS Y EL METODO ANYMATCH
         if (totalCliente(c)>=1000){
             bfwClientesMas1000.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
             bfwClientesCon.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
@@ -113,7 +114,7 @@ public class Prueba5Marzo {
             bfwClientesCon.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n");
             }else{
                bfwClientesSin.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail() + "\n"); 
-            }      
+            }
         }
         
     } catch (IOException e) {
@@ -158,12 +159,12 @@ public class Prueba5Marzo {
             System.out.println(e.toString());
         }
         
-        System.out.println("\nCLIENTES CON PEDIDOS:");
+        /*System.out.println("\nCLIENTES CON PEDIDOS:");
         clientesCon.forEach(System.out::println);
         System.out.println("\nCLIENTES SIN PEDIDOS:");
         clientesSin.forEach(System.out::println);
         System.out.println("\nCLIENTES CON PEDIDOS DE MAS DE 1000 EUROS GASTADOS:");
-        clientesMas1000.forEach(System.out::println);
+        clientesMas1000.forEach(System.out::println);*/
     }
 
     public double totalPedido(Pedido p){
@@ -197,7 +198,47 @@ public class Prueba5Marzo {
         }
     }
     
-  /*int cuentaPedidos (Cliente c){
+    public void contabilizarPedido(){
+        System.out.println("Teclea el idArticulo para contabilizar en pedidos:");
+        String id=sc.next();
+        do{
+            System.out.println("El id tecleado no existe");
+            id=sc.next();
+        }while(!articulos.containsKey(id));
+        
+        int total=0;
+        for (Pedido p : pedidos) {
+            int unidades = articuloEnPedido(id, p);
+            System.out.println("Pedido: " + p.getIdPedido() + " realizado el dia: " + p.getFechaPedido() 
+                    + " se han vendido " + unidades + " unidades ");
+            total+=unidades;
+        }
+        System.out.println("El total de unidades vendidas del articulo: " 
+                + articulos.get(id).getDescripcion()+ " es: " + total);
+        
+    }
+    
+    public int articuloEnPedido(String idArticulo, Pedido p){
+        int contador=0;
+        for (LineaPedido l : p.getCestaCompra()){
+            if (l.getIdArticulo().equals(idArticulo)){
+                contador+=l.getUnidades();
+                break;
+            }
+        }
+        return contador;
+    }
+    
+    public int articuloEnPedido2(String idArticulo, Pedido p){
+        try{
+            return p.getCestaCompra().stream().filter(l->l.getIdArticulo().equals(idArticulo))
+                .findFirst().get().getUnidades();
+        }catch (NoSuchElementException e){
+            return 0;
+        }
+    }
+    
+    /*int cuentaPedidos (Cliente c){
         int contador = 0;
         for (Pedido p : pedidos)
             if(p.getClientePedido().equals(c)){
@@ -214,6 +255,7 @@ public class Prueba5Marzo {
             System.out.println("\n--- MENU ---");
             System.out.println("1. Buckup clientes");
             System.out.println("2. Importar clientes");
+            System.out.println("3. Contabiliazar pedidos");
             System.out.println("9. Salir");
             opcion = sc.nextInt();
 
@@ -224,6 +266,10 @@ public class Prueba5Marzo {
                 case 2:
                     clientesTxtLeer();
                     break;
+                case 3:
+                    contabilizarPedido();
+                case 4:
+                    
             }
         } while (opcion != 9);
         sc.close();
