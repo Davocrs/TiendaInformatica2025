@@ -23,7 +23,7 @@ import java.util.Scanner;
  */
 public class Prueba5Marzo {
     
-    Scanner sc=new Scanner(System.in);
+    Scanner sc = new Scanner(System.in);
     private ArrayList<Pedido> pedidos;
     private HashMap <String, Articulo> articulos;
     private HashMap <String, Cliente> clientes;
@@ -39,7 +39,7 @@ public class Prueba5Marzo {
         c.cargaDatos();
         //c.clientesTxtLeer();
         c.menu();
-        c.clientesTxtBackup();      
+        //c.clientesTxtBackup();      
     }
     
     public void clientesTxtBackup() {
@@ -131,21 +131,27 @@ public class Prueba5Marzo {
     }
 
     public double totalPedido(Pedido p){
+        /* VERSION CLASICA
         double total=0;
         for (LineaPedido l:p.getCestaCompra()){
             total+=(articulos.get(l.getIdArticulo()).getPvp())*l.getUnidades();
         }
-        return total;
+        return total;*/
+        return p.getCestaCompra().stream().mapToDouble(l -> articulos.get(l.getIdArticulo()).getPvp()
+            *l.getUnidades()).sum();
     }
     
     public double totalCliente(Cliente c){
+        /* VERSION CLASICA
         double total=0;
         for (Pedido p : pedidos){
             if (p.getClientePedido().equals(c)){
                 total+=totalPedido(p);
             } 
         }
-        return total;
+        return total;*/
+        return pedidos.stream().filter(p -> p.getClientePedido().equals(c))
+            .mapToDouble(p -> totalPedido(p)).sum();
     }
     
     public void clientePedido(){
@@ -244,40 +250,112 @@ public class Prueba5Marzo {
                 case 3:
                     contabilizarPedido();
                 case 4:
-                    tareaLunes17();
+                    tareaLunes17Marzo();
             }
         } while (opcion != 9);
         sc.close();
     }
     
-    public void tareaLunes17() {
+    //<editor-fold defaultstate="collapsed" desc="TAREA LUNES 17 DE MARZO">
+    
+    public void tareaLunes17Marzo() {
         Scanner sc = new Scanner(System.in);
         int opcion;
 
         do {
             System.out.println("\n--- MENU ---");
-            System.out.println("1. Listado de clientes que hayan comprado el id de articulo tecleado");
-            System.out.println("2. ");
-            System.out.println("3. ");
-            System.out.println("9. Salir");
+            System.out.println("1. Lista de clientes que hayan comprado el id de articulo tecleado");
+            System.out.println("2. Listar clientes por gasto total");
+            System.out.println("3. Menu por seccion");
             opcion = sc.nextInt();
 
             switch (opcion) {
                 case 1:
-                    
+                    mostrarCompradorArticulo();
                     break;
                 case 2:
-
+                    mostrarClientesPorGasto();
                     break;
                 case 3:
-
-                case 4:
-
+                    listadoApartados();
+                    break;
             }
         } while (opcion != 9);
         sc.close();
     }
+   
+    public void mostrarCompradorArticulo(){
+        System.out.println("Teclea el idArticulo para en pedidos:");
+        String id=sc.next();
+        do{
+            System.out.println("El id tecleado no existe");
+            id=sc.next();
+        }while(!articulos.containsKey(id));
+        
+        System.out.println("Usuarios que han comprado ese articulo " + articulos.get(id).getDescripcion());
+        // METODO TRADICIONAL
+        for (Cliente c : clientes.values()) {
+            int unidades = 0;
+            for (Pedido p : pedidos) {
+                if(p.getClientePedido().equals(c)){
+                    for(LineaPedido l :p.getCestaCompra()){
+                        if(l.getIdArticulo().equals(id)){
+                            unidades+=l.getUnidades();
+                        }
+                    } 
+                }
+            }
+            if (unidades>0){
+                System.out.println(c.getNombre()+ " han comprado " 
+                                    + unidades + " unidades ");
+            }
+        }
+        
+        // METODO POR STREAMS
+        /*final String id2 = id;
+        for (Cliente c : clientes.values()) {
+            pedidos.stream().filter(p->p.getClientePedido().equals(c))
+                .forEach(p->System.out.println(p.getClientePedido().getNombre() + " : " + p.getCestaCompra().stream()
+                    .filter(l->l.getIdArticulo().equals(id2)).mapToInt(LineaPedido::getUnidades).sum()));
+        }*/
+    }
     
+    public void mostrarClientesPorGasto(){
+        System.out.println("Clientes ordenados de mayor a menor por dinero gastado\n"); 
+        clientes.values().stream().sorted(Comparator.comparing(c -> totalCliente((Cliente)c)).reversed())
+            .forEach(c -> System.out.println(c + " - Total Gastado: " + totalCliente(c))); 
+    }
+       
+    private void listadoApartados() {
+        String opcion;
+        
+        do{
+            System.out.println("Elige un apartado para ver los articulos:\n");
+            System.out.println("1. Perifericos");
+            System.out.println("2. Alamcenamineto");
+            System.out.println("3. Impresoras");
+            System.out.println("4. Monitores");
+            System.out.println("5. Todas");
+            opcion=sc.next();
+            
+            listado(opcion);
+        }while(opcion.matches("[1-5]"));
+    }
+
+    public void listado (String apartado){
+        String[] apartados={"","Perifericos","Alamcenamineto","Impresoras","Monitores","Todas"};
+        
+        System.out.println("Articulos del apartado: " + apartados[Integer.parseInt(apartado)]);
+        if (apartado.equals("5")){
+            articulos.values().stream().sorted().forEach(System.out::println);
+        }else{
+            articulos.values().stream().filter(a -> a.getIdArticulo().startsWith(apartado))
+                .sorted().forEach(System.out::println);
+        }
+    }
+    
+    //</editor-fold>
+        
     public void cargaDatos(){
         
        clientes.put("80580845T",new Cliente("80580845T","ANA ","658111111","ana@gmail.com"));
@@ -314,5 +392,5 @@ public class Prueba5Marzo {
        pedidos.add(new Pedido("43211307Y-001/2025",clientes.get("43211307Y"),hoy, new ArrayList<>
         (List.of(new LineaPedido("4-33",1)))));
 
-    } 
+    }
 }
