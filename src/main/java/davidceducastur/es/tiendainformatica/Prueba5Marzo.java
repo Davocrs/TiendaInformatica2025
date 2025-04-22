@@ -328,32 +328,44 @@ public class Prueba5Marzo {
        
     private void listadoApartados() {
         String opcion;
-        
-        do{
+
+        do {
             System.out.println("Elige un apartado para ver los articulos:\n");
             System.out.println("1. Perifericos");
-            System.out.println("2. Alamcenamineto");
+            System.out.println("2. Almacenamiento");
             System.out.println("3. Impresoras");
             System.out.println("4. Monitores");
             System.out.println("5. Todas");
-            opcion=sc.next();
-            
-            listado(opcion);
-        }while(opcion.matches("[1-5]"));
+            System.out.println("6. Salir");
+
+            opcion = sc.next();
+
+            if (opcion.equals("6")) {
+                break;
+            } 
+
+            if (opcion.matches("[1-5]")) {
+                listado(opcion);
+            } else {
+                System.out.println("Opcion no valida. Intentalo de nuevo.");
+            }
+        } while (true);
     }
 
-    public void listado (String apartado){
-        String[] apartados={"","Perifericos","Alamcenamineto","Impresoras","Monitores","Todas"};
-        
-        System.out.println("Articulos del apartado: " + apartados[Integer.parseInt(apartado)]);
-        if (apartado.equals("5")){
-            articulos.values().stream().sorted().forEach(System.out::println);
-        }else{
-            articulos.values().stream().filter(a -> a.getIdArticulo().startsWith(apartado))
-                .sorted().forEach(System.out::println);
-        }
-    }
+public void listado(String apartado) {
+    String[] apartados = {"", "Periféricos", "Almacenamiento", "Impresoras", "Monitores", "Todas"};
     
+    System.out.println("Articulos del apartado: " + apartados[Integer.parseInt(apartado)]);
+    
+    if (apartado.equals("5")) {
+        articulos.values().stream().sorted(Comparator.comparing(Articulo::getPvp).reversed()) 
+            .forEach(System.out::println);
+    } else {  
+        articulos.values().stream().filter(a -> a.getIdArticulo().startsWith(apartado))
+           .sorted(Comparator.comparing(Articulo::getPvp).reversed()).forEach(System.out::println);
+    }
+}
+  
     //</editor-fold>
         
     public void cargaDatos(){
