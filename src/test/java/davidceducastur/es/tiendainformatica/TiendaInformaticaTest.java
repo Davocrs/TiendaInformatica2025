@@ -29,15 +29,6 @@ public class TiendaInformaticaTest {
     @BeforeEach
     public void setUp() {
         t = new TiendaInformatica();
-        t.articulos.put("1-11", new Articulo("1-11", "RATON LOGITECH ST", 14, 15));
-        t.articulos.put("1-22", new Articulo("1-22", "TECLADO STANDARD", 9, 18));
-        t.articulos.put("2-11", new Articulo("2-11", "HDD SEAGATE 1 TB", 16, 80));
-        t.articulos.put("2-22", new Articulo("2-22", "SSD KINGSTOM 256GB", 9, 70));
-        t.articulos.put("2-33", new Articulo("2-33", "SSD KINGSTOM 512GB", 0, 200));
-        t.articulos.put("3-22", new Articulo("3-22", "EPSON PRINT XP300", 5, 80));
-        t.articulos.put("4-11", new Articulo("4-11", "ASUS MONITOR 22", 5, 100));
-        t.articulos.put("4-22", new Articulo("4-22", "HP MONITOR LED 28", 5, 180));
-        t.articulos.put("4-33", new Articulo("4-33", "SAMSUNG ODISSEY G5", 12, 580));
     }
 
     @AfterEach
