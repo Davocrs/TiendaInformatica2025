@@ -140,7 +140,7 @@ public class TiendaInformaticaTest {
     @Test
     public void testStock() throws Exception {
         assertAll(
-          () -> assertThrows(StockInsuficiente.class, ()-> {t.stock("1-11",22);},"El stock no esta agotado"),
+          () -> assertThrows(StockInsuficiente.class, ()-> {t.stock("1-11",22);},"El stock esta insuficiente"),
           () -> assertThrows(StockAgotado.class, ()-> {t.stock("2-33",5);}, "El stock esta agotado")
         );
     }
