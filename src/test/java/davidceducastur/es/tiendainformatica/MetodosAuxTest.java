@@ -50,7 +50,7 @@ public class MetodosAuxTest {
           () -> assertFalse(MetodosAux.esInt("678492358723945"),"678492358723945 no es Int")
         );
         
-        /*assertTrue(MetodosAux.esInt("-5"),"El -5 es Int");
+      /*assertTrue(MetodosAux.esInt("-5"),"El -5 es Int");
         assertTrue(MetodosAux.esInt("5"),"El 5 es Int");
         assertTrue(MetodosAux.esInt("0"),"El 0 es Int");
         assertFalse(MetodosAux.esInt("5.5"),"El 5.5 no es Int");

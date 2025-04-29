@@ -162,8 +162,31 @@ public class TiendaInformatica {
             }
         }
     }
-
     
+    public double totalPedido(Pedido p){
+        double total=0;
+        for (LineaPedido l:p.getCestaCompra())
+        {
+            total+=(articulos.get(l.getIdArticulo()).getPvp())*l.getUnidades();
+        }
+        return total;
+    }
+    
+    public double totalCliente(Cliente c){
+        /* VERSIÓN CLÁSICA
+        double total=0;
+        for(Pedido p:pedidos){
+            if (p.getClientePedido().equals(c)){
+                total+=totalPedido(p);
+            }
+        }
+        return total;*/
+        
+        /*VERSIÓN PROGRAMACIÓN FUNCIONAL */
+        return pedidos.stream().filter(p-> p.getClientePedido().equals(c))
+                .mapToDouble(p -> totalPedido(p)).sum();
+    }
+ 
 //<editor-fold defaultstate="collapsed" desc="GESTION MENUS">
     
     public void menuPrincipal() {
@@ -267,6 +290,7 @@ public class TiendaInformatica {
             System.out.println("2. Listar Clientes");
             System.out.println("3. backup en archivo csv");
             System.out.println("4. Leer clientes en archivos");
+            System.out.println("5. Archivos de los pedidos de cada cliente");
             System.out.println("9. Salir");
             opcion = sc.nextInt();
 
@@ -282,6 +306,9 @@ public class TiendaInformatica {
                     break;
                 case 4:
                     clientesTxtLeer();
+                    break;
+                case 5:
+                    backupPedidosClientes();
                     break;
             }
         } while (opcion != 9);
@@ -380,16 +407,6 @@ public class TiendaInformatica {
     
 //</editor-fold> 
     
-    public double totalPedido(Pedido p)
-    {
-        double total=0;
-        for (LineaPedido l:p.getCestaCompra())
-        {
-            total+=(articulos.get(l.getIdArticulo()).getPvp())*l.getUnidades();
-        }
-        return total;
-    }
-    
     public void backup() {
         try (ObjectOutputStream oosArticulos = new ObjectOutputStream(new FileOutputStream("articulos.dat"));
             ObjectOutputStream oosClientes = new ObjectOutputStream(new FileOutputStream("clientes.dat"));
@@ -442,8 +459,7 @@ public class TiendaInformatica {
         } catch (ClassNotFoundException | IOException e) {
                 System.out.println(e.toString()); 
         }
-        
-        
+          
         try (ObjectInputStream oisPedidos = new ObjectInputStream(new FileInputStream("pedidos.dat"))){
             Pedido p;
             while ( (p=(Pedido)oisPedidos.readObject()) != null){
@@ -462,9 +478,10 @@ public class TiendaInformatica {
     public void backupPorSeccion() {
         Scanner sc = new Scanner(System.in);
         try (ObjectOutputStream oosPerifericos = new ObjectOutputStream(new FileOutputStream("Perifericos.dat"));
-            ObjectOutputStream oosAlmacenamiento = new ObjectOutputStream(new FileOutputStream("Almacenamiento.dat"));
-            ObjectOutputStream oosImpresoras = new ObjectOutputStream(new FileOutputStream("Impresoras.dat"));
-            ObjectOutputStream oosMonitores = new ObjectOutputStream (new FileOutputStream("Monitores.dat"))) 
+             ObjectOutputStream oosAlmacenamiento = new ObjectOutputStream(new FileOutputStream("Almacenamiento.dat"));
+             ObjectOutputStream oosImpresoras = new ObjectOutputStream(new FileOutputStream("Impresoras.dat"));
+             ObjectOutputStream oosMonitores = new ObjectOutputStream (new FileOutputStream("Monitores.dat"))
+            ) 
         {   	   
             for (Articulo a : articulos.values()) {
                 char seccion=a.getIdArticulo().charAt(0);
@@ -584,35 +601,105 @@ public class TiendaInformatica {
             System.out.println(e.toString());
         }
         clientesAux.values().forEach(System.out::println);
-    } 
+    }
+    
+    public void backupPedidosClientes() {
+    Scanner sc = new Scanner(System.in);
+    boolean tienePedidos;
+    for (Cliente c:clientes.values()){
+        tienePedidos=false;       
+        for (Pedido p: pedidos ){
+            if(p.getClientePedido().equals(c)){
+                tienePedidos=true;
+                break;
+            }
+        }
+        if (tienePedidos){
+            String archivo="PedidosCliente_" + c.getNombre()+".dat";
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(archivo)))
+            {
+               for (Pedido p: pedidos ){
+                    if(p.getClientePedido().equals(c)) {
+                        oos.writeObject(p);
+                    }
+               }
+            } catch (IOException e) {
+               System.out.println(e.toString());
+            } 
+
+        }
+    }
+    System.out.println("ARCHIVOS CREADOS CORRECTAMENTE\n");
+
+    String dniT; 
+    do{
+        System.out.println("DNI CLIENTE:");
+        dniT=sc.next().toUpperCase();    
+    }while (!clientes.containsKey(dniT)||!MetodosAux.validarDNI(dniT));
+
+    tienePedidos=false;       
+    for (Pedido p: pedidos ){
+        if(p.getClientePedido().equals(clientes.get(dniT))) {
+            tienePedidos=true;
+            break;
+        }
+    }
+        
+    if (tienePedidos){
+        String archivo="PedidosCliente_" + clientes.get(dniT).getNombre()+".dat";
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(archivo)))
+        {
+            Pedido p=null;
+            while ( (p=(Pedido)ois.readObject()) != null){
+                 System.out.println("\nPEDIDO: " + p.getIdPedido() + " DE: " + p.getClientePedido().getNombre());
+                 for (LineaPedido l:p.getCestaCompra()){
+                     System.out.println(articulos.get(l.getIdArticulo()).getDescripcion()
+                             + "\t Unidades: " +l.getUnidades());
+                 }
+            } 
+        } catch (EOFException e) {
+            System.out.println("Fin archivo");
+        } catch (IOException e) {
+            System.out.println("No existen pedidos para ese DNI");
+        } catch (ClassNotFoundException ex) {
+        }
+    }
+    }
     
     public void cargaDatos() {
         
-        clientes.put("80580845T", new Cliente("80580845T", "ANA ", "658111111", "ana@gmail.com"));
-        clientes.put("36347775R", new Cliente("36347775R", "LOLA", "649222222", "lola@gmail.com"));
-        clientes.put("63921307Y", new Cliente("63921307Y", "JUAN", "652333333", "juan@gmail.com"));
-        clientes.put("02337565Y", new Cliente("02337565Y", "EDU", "634567890", "edu@gmail.com"));
-
-        articulos.put("1-11", new Articulo("1-11", "RATON LOGITECH ST ", 14, 15));
-        articulos.put("1-22", new Articulo("1-22", "TECLADO STANDARD  ", 9, 18));
-        articulos.put("2-11", new Articulo("2-11", "HDD SEAGATE 1 TB  ", 16, 80));
-        articulos.put("2-22", new Articulo("2-22", "SSD KINGSTOM 256GB", 9, 70));
-        articulos.put("2-33", new Articulo("2-33", "SSD KINGSTOM 512GB", 0, 200));
-        articulos.put("3-22", new Articulo("3-22", "EPSON PRINT XP300 ", 5, 80));
-        articulos.put("4-11", new Articulo("4-11", "ASUS  MONITOR  22 ", 5, 100));
-        articulos.put("4-22", new Articulo("4-22", "HP MONITOR LED 28 ", 5, 180));
-        articulos.put("4-33", new Articulo("4-33", "SAMSUNG ODISSEY G5", 12, 580));
-
-        LocalDate hoy = LocalDate.now();
-        pedidos.add(new Pedido("80580845T-001/2024", clientes.get("80580845T"), hoy.minusDays(1), new ArrayList<>
-        (List.of(new LineaPedido("1-11", 3), new LineaPedido("4-22", 3)))));
-        pedidos.add(new Pedido("80580845T-002/2024", clientes.get("80580845T"), hoy.minusDays(2), new ArrayList<>
-        (List.of(new LineaPedido("4-11", 3), new LineaPedido("4-22", 2), new LineaPedido("4-33", 4)))));
-        pedidos.add(new Pedido("36347775R-001/2024", clientes.get("36347775R"), hoy.minusDays(3), new ArrayList<>
-        (List.of(new LineaPedido("4-22", 1), new LineaPedido("2-22", 3)))));
-        pedidos.add(new Pedido("36347775R-002/2024", clientes.get("36347775R"), hoy.minusDays(5), new ArrayList<>
-        (List.of(new LineaPedido("4-33", 3), new LineaPedido("2-11", 3)))));
-        pedidos.add(new Pedido("63921307Y-001/2024", clientes.get("63921307Y"), hoy.minusDays(4), new ArrayList<>
-        (List.of(new LineaPedido("2-11", 5), new LineaPedido("2-33", 3), new LineaPedido("4-33", 2)))));
+       clientes.put("80580845T",new Cliente("80580845T","ANA ","658111111","ana@gmail.com"));
+       clientes.put("36347775R",new Cliente("36347775R","ANTONIO","649222222","antonio@gmail.com"));
+       clientes.put("63921307Y",new Cliente("63921307Y","AURORA","652333333","aurora@gmail.com"));
+       clientes.put("53472775R",new Cliente("53472775R","EMILIO","649222222","emilio@gmail.com"));
+       clientes.put("43211307Y",new Cliente("43211307Y","EVA","652333333","eva@gmail.com"));
+       clientes.put("02337565Y",new Cliente("02337565Y","MATEO","634567890","mateo@gmail.com"));
+       clientes.put("35445638M",new Cliente("35445638M","MARIA","633478990","maria@gmail.com"));
+     
+       articulos.put("1-11",new Articulo("1-11","RATON LOGITECH ST ",14,15));
+       articulos.put("1-22",new Articulo("1-22","TECLADO STANDARD  ",9,18));
+       articulos.put("2-11",new Articulo("2-11","HDD SEAGATE 1 TB  ",16,80));
+       articulos.put("2-22",new Articulo("2-22","SSD KINGSTOM 256GB",9,70));
+       articulos.put("2-33",new Articulo("2-33","SSD KINGSTOM 512GB",0,200));
+       articulos.put("3-22",new Articulo("3-22","EPSON PRINT XP300 ",5,80));
+       articulos.put("4-11",new Articulo("4-11","ASUS  MONITOR  22 ",5,100));
+       articulos.put("4-22",new Articulo("4-22","HP MONITOR LED 28 ",5,180));
+       articulos.put("4-33",new Articulo("4-33","SAMSUNG ODISSEY G5",12,580));
+       
+       LocalDate hoy = LocalDate.now();
+       pedidos.add(new Pedido("80580845T-001/2024",clientes.get("80580845T"),hoy.minusDays(1), new ArrayList<>
+        (List.of(new LineaPedido("1-11",3),new LineaPedido("4-22",3)))));                                                                                                                                                               
+       pedidos.add(new Pedido("80580845T-002/2024",clientes.get("80580845T"),hoy.minusDays(2), new ArrayList<>
+        (List.of(new LineaPedido("4-11",3),new LineaPedido("4-22",2),new LineaPedido("4-33",4)))));
+       pedidos.add(new Pedido("36347775R-001/2024",clientes.get("36347775R"),hoy.minusDays(3), new ArrayList<>
+        (List.of(new LineaPedido("4-22",1),new LineaPedido("2-22",3)))));
+       pedidos.add(new Pedido("36347775R-002/2024",clientes.get("36347775R"),hoy.minusDays(5), new ArrayList<>
+        (List.of(new LineaPedido("4-33",3),new LineaPedido("2-11",3)))));
+       pedidos.add(new Pedido("63921307Y-001/2024",clientes.get("63921307Y"),hoy.minusDays(4), new ArrayList<>
+        (List.of(new LineaPedido("2-11",5),new LineaPedido("2-33",3),new LineaPedido("4-33",2)))));
+       pedidos.add(new Pedido("53472775R-001/2025",clientes.get("53472775R"),hoy, new ArrayList<>
+        (List.of(new LineaPedido("1-11",2),new LineaPedido("2-11",2)))));
+       pedidos.add(new Pedido("43211307Y-001/2025",clientes.get("43211307Y"),hoy, new ArrayList<>
+        (List.of(new LineaPedido("4-33",1)))));
     }
 }

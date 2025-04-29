@@ -582,8 +582,8 @@ public class Repaso {
         
         
         for (char s:articulosEnSeccion2.keySet()){
-            System.out.println("En la SECCIÓN: " + s + " hay "
-                    + articulosEnSeccion2.get(s) + " artículos");
+            System.out.println("En la SECCION: " + s + " hay "
+                    + articulosEnSeccion2.get(s) + " articulos");
         }
         
         /********************************************************************************************** 
@@ -592,7 +592,7 @@ public class Repaso {
         
         String seccion;
         do{
-            System.out.println("Teclea la Sección para conocer artículo más caro y más barato:");
+            System.out.println("Teclea la Seccion para conocer articulo mas caro y mas barato:");
             seccion=sc.next();
         }while(!seccion.matches("[1-4]"));
         
