@@ -677,7 +677,6 @@ public class Repaso {
             .forEach(c -> {
                 try {
                     bw.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail());
-                    bw.newLine();
                 } catch (IOException e) {
                     System.out.println("Error al escribir: " + e.getMessage());
                 }
@@ -689,39 +688,66 @@ public class Repaso {
     
     // 6. Devuelve el total gastado en monitores (idArticulo empieza por "4")
     public double totalGastoEnMonitores() {
-    return pedidos.stream()
-        .flatMap(p -> p.getCestaCompra().stream())
-        .filter(lp -> lp.getIdArticulo().startsWith("4"))
-        .mapToDouble(lp -> lp.getUnidades() * articulos.get(lp.getIdArticulo()).getPvp())
-        .sum();
+    double total = 0;
+    for (Pedido p : pedidos) {
+        for (LineaPedido l : p.getCestaCompra()) {
+            if (l.getIdArticulo().startsWith("4")) {
+                Articulo a = articulos.get(l.getIdArticulo());
+                total += a.getPvp() * l.getUnidades();
+            }
+        }
     }
-    
+    return total;
+    }
+  
     // 7. Muestra los clientes ordenados por el número total de artículos que han comprado (no el dinero)
     public void clientesOrdenadosPorUnidadesCompradas() {
-    clientes.values().stream()
-        .sorted(Comparator.comparingInt(c -> pedidos.stream()
-            .filter(p -> p.getClientePedido().equals(c))
-            .flatMap(p -> p.getCestaCompra().stream())
-            .mapToInt(LineaPedido::getUnidades)
-            .sum()).reversed())
-        .forEach(c -> System.out.println(c.getNombre() + " - unidades: " +
-            pedidos.stream()
-            .filter(p -> p.getClientePedido().equals(c))
-            .flatMap(p -> p.getCestaCompra().stream())
-            .mapToInt(LineaPedido::getUnidades)
-            .sum()));
+    List<Cliente> lista = new ArrayList<>(clientes.values());
+
+    lista.sort(Comparator.comparingInt(c -> {
+        int total = 0;
+        for (Pedido p : pedidos) {
+            if (p.getClientePedido().equals(c)) {
+                for (LineaPedido l : p.getCestaCompra()) {
+                    total += l.getUnidades();
+                }
+            }
+        }
+        return -total; //
+    }));
+
+    for (Cliente c : lista) {
+        int total = 0;
+        for (Pedido p : pedidos) {
+            if (p.getClientePedido().equals(c)) {
+                for (LineaPedido l : p.getCestaCompra()) {
+                    total += l.getUnidades();
+                }
+            }
+        }
+        System.out.println(c.getNombre() + " - unidades: " + total);
     }
-    
+    }
+
     // 8. Crea un Map<String, Integer> con el nombre del cliente y el número total de artículos comprados
     public Map<String, Integer> mapaNombreConUnidades() {
-    return clientes.values().stream()
-        .collect(Collectors.toMap(
-            Cliente::getNombre,c -> pedidos.stream()
-                .filter(p -> p.getClientePedido().equals(c))
-                .flatMap(p -> p.getCestaCompra().stream())
-                .mapToInt(LineaPedido::getUnidades).sum()));
+    Map<String, Integer> resultado = new HashMap<>();
+
+    for (Cliente c : clientes.values()) {
+        int total = 0;
+        for (Pedido p : pedidos) {
+            if (p.getClientePedido().equals(c)) {
+                for (LineaPedido l : p.getCestaCompra()) {
+                    total += l.getUnidades();
+                }
+            }
+        }
+        resultado.put(c.getNombre(), total);
     }
-    
+
+    return resultado;
+    }
+
     // 9. Mostrar los clientes que han hecho pedidos, ordenados por nombre alfabéticamente.
     public void mostrarClientesConPedidosOrdenadosPorNombre() {
     clientes.values().stream().filter(c -> pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c)))
@@ -730,13 +756,166 @@ public class Repaso {
     
     // 10. Devuelve el número total de unidades vendidas de artículos de la sección 4 (monitores)
     public int totalUnidadesVendidasSeccion4() {
-    return pedidos.stream().flatMap(p -> p.getCestaCompra().stream())
-        .filter(lp -> lp.getIdArticulo().startsWith("4"))
-        .mapToInt(LineaPedido::getUnidades).sum();
+    int total = 0;
+    for (Pedido p : pedidos) {
+        for (LineaPedido l : p.getCestaCompra()) {
+            if (l.getIdArticulo().startsWith("4")) {
+                total += l.getUnidades();
+            }
+        }
     }
-   
+    return total;
+    }
+    
+    // 11. Muestra los artículos que no tienen existencias y ordénalos por precio descendente.
+    public void mostrarArticulosSinStockOrdenados() {
+    articulos.values().stream()
+        .filter(a -> a.getExistencias() == 0)
+        .sorted(Comparator.comparingDouble(Articulo::getPvp).reversed())
+        .forEach(System.out::println);
+    }
+    
+    // 12. Devuelve una lista con los clientes que nunca han hecho ningún pedido.
+    public List<Cliente> clientesSinPedidos() {
+    return clientes.values().stream()
+        .filter(c -> pedidos.stream().noneMatch(p -> p.getClientePedido().equals(c)))
+        .collect(Collectors.toList());
+    }
+    
+    // 13. Crea un Map<Character, List<Cliente>> donde la clave sea la letra inicial del nombre.
+    public Map<Character, List<Cliente>> agruparClientesPorInicial() {
+    return clientes.values().stream()
+        .collect(Collectors.groupingBy(c -> c.getNombre().charAt(0)));
+    }
+    
+    // 14. Crea un Map<String, Integer> con el DNI del cliente y el nº de pedidos realizados.
+    public Map<String, Integer> pedidosPorCliente() {
+    return clientes.values().stream()
+        .collect(Collectors.toMap(
+            Cliente::getDni,
+            c -> (int) pedidos.stream().filter(p -> p.getClientePedido().equals(c)).count()
+        ));
+    }
+    
+    // 15. Crea un Map<Character, Integer> donde la clave sea la sección (1, 2, 3...) y el valor el total de existencias.
+    public Map<Character, Integer> existenciasPorSeccion() {
+    return articulos.values().stream()
+        .collect(Collectors.toMap(
+            a -> a.getIdArticulo().charAt(0),
+            a -> a.getExistencias(),
+            Integer::sum // si hay claves repetidas, se suman
+        ));
+    }
 
-   
+    // 16. Lista de artículos con precio entre 50 y 200 ordenados por existencias
+    public List<Articulo> articulosPrecioMedioOrdenadosPorStock() {
+    return articulos.values().stream()
+        .filter(a -> a.getPvp() >= 50 && a.getPvp() <= 200)
+        .sorted(Comparator.comparingInt(Articulo::getExistencias).reversed())
+        .collect(Collectors.toList());
+    }
+    
+    // 17. Guardar artículos sin stock en archivo sinStock.txt
+    public void guardarArticulosSinStock() {
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter("sinStock.txt"))) {
+        for (Articulo a : articulos.values()) {
+            if (a.getExistencias() == 0) {
+                bw.write(a.getIdArticulo() + " - " + a.getDescripcion());
+            }
+        }
+        System.out.println("Artículos sin stock guardados.");
+    } catch (IOException e) {
+        System.out.println("Error: " + e.getMessage());
+    }
+    }
+
+    // 18. Total gastado por un cliente concreto
+    public double gastoClientePorDni(String dni) {
+    return pedidos.stream().filter(p -> p.getClientePedido().getDni().equalsIgnoreCase(dni))
+        .mapToDouble(p -> totalPedido(p)).sum();
+    }
+    
+    // 19. Lista de artículos con más de 10 existencias, ordenados por ID
+    public List<Articulo> articulosConStockOrdenadosPorId() {
+    return articulos.values().stream()
+        .filter(a -> a.getExistencias() > 10)
+        .sorted(Comparator.comparing(Articulo::getIdArticulo))
+        .collect(Collectors.toList());
+    }
+    
+    // 20. Crea un archivo que contenga los datos de los clientes que hayan hecho al menos 1 pedido y cuyo gasto total supere 1500 €
+    public void guardarClientesVIP() {
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesVIP.txt"))) {
+        clientes.values().stream()
+            .filter(c -> pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c))) 
+            .filter(c -> totalCliente(c) > 1500) 
+            .sorted(Comparator.comparingDouble(c -> -totalCliente(c)))
+            .forEach(c -> {
+                try {
+                    bw.write(c.getDni() + " - " + c.getNombre() + " - " + totalCliente(c));
+                    bw.newLine();
+                } catch (IOException e) {
+                    System.out.println("Error al escribir: " + e.getMessage());
+                }
+            });
+        System.out.println("Clientes VIP guardados correctamente.");
+    } catch (IOException e) {
+        System.out.println("Error general: " + e.getMessage());
+    }
+    }
+    
 //</editor-fold>
     
+    //<editor-fold defaultstate="collapsed" desc="CHULETA RESUMEN">
+/*   
+
+// 1. Filtrar + recolectar en lista
+List<Tipo> lista = coleccion.stream()
+    .filter(x -> condición)
+    .collect(Collectors.toList());
+
+// 2. Filtrar + recolectar en conjunto (para eliminar duplicados)
+Set<Tipo> conjunto = coleccion.stream()
+    .filter(x -> condición)
+    .collect(Collectors.toSet());
+
+// 3. Filtrar + guardar en mapa clave/valor
+Map<Clave, Valor> mapa = coleccion.stream()
+    .collect(Collectors.toMap(
+        x -> x.getClave(),
+        x -> x.getValor()
+    ));
+
+// 4. Guardar en mapa agrupando por atributo (groupingBy)
+Map<Agrupado, List<Tipo>> agrupado = coleccion.stream()
+    .collect(Collectors.groupingBy(x -> x.getAlgo()));
+
+// 5. Ordenar por atributo
+.stream().sorted(Comparator.comparing(Clase::getAtributo))
+
+// 6. Ordenar descendente por atributo
+.stream().sorted(Comparator.comparing(Clase::getAtributo).reversed())
+
+// 7. Cálculo total con mapToDouble
+double total = coleccion.stream()
+    .mapToDouble(x -> x.getPrecio() * x.getCantidad())
+    .sum();
+
+// 8. Cálculo total con mapToInt
+int unidades = coleccion.stream()
+    .mapToInt(x -> x.getUnidades())
+    .sum();
+
+// 9. Obtener el máximo por atributo (máximo valor)
+Optional<Tipo> maximo = coleccion.stream()
+    .max(Comparator.comparing(x -> x.getAlgo()));
+
+// 10. Crear una lista de claves de un mapa, ordenadas por su valor (sin Map.Entry)
+List<Clave> lista = mapa.keySet().stream()
+    .sorted((k1, k2) -> mapa.get(k2) - mapa.get(k1))
+    .collect(Collectors.toList());
+
+*/
+//</editor-fold>
+
 }
