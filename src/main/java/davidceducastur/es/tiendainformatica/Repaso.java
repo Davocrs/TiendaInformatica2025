@@ -914,6 +914,96 @@ Optional<Tipo> maximo = coleccion.stream()
 List<Clave> lista = mapa.keySet().stream()
     .sorted((k1, k2) -> mapa.get(k2) - mapa.get(k1))
     .collect(Collectors.toList());
+   
+===========================================
+💻 CHULETA EXAMEN – JAVA STREAMS & ARCHIVOS
+===========================================
+
+🔹 1. Persistencia – Archivos de texto o binarios
+
+📄 Guardar en texto:
+try (BufferedWriter bw = new BufferedWriter(new FileWriter("archivo.txt"))) {
+    for (Tipo t : coleccion) {
+        bw.write(...);
+        bw.newLine();
+    }
+}
+
+📄 Leer desde texto:
+try (BufferedReader br = new BufferedReader(new FileReader("archivo.txt"))) {
+    String linea;
+    while ((linea = br.readLine()) != null) {
+        ...
+    }
+}
+
+📦 Guardar en binario:
+try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("archivo.dat"))) {
+    for (Tipo t : coleccion) {
+        oos.writeObject(t);
+    }
+}
+
+📦 Leer desde binario:
+try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("archivo.dat"))) {
+    while (true) {
+        Tipo t = (Tipo) ois.readObject();
+    }
+} catch (EOFException e) { ... }
+
+-------------------------------------------
+
+🔹 2. Streams – Seleccionar y ordenar
+
+Filtro + orden:
+coleccion.stream()
+    .filter(x -> condición)
+    .sorted(Comparator.comparing(Clase::getAtributo))
+    .forEach(System.out::println);
+
+Orden descendente:
+.sorted(Comparator.comparing(Clase::getAtributo).reversed())
+
+-------------------------------------------
+
+🔹 3. Streams – Cálculo numérico
+
+Suma total (precio × unidades):
+double total = coleccion.stream()
+    .mapToDouble(x -> x.getPrecio() * x.getUnidades())
+    .sum();
+
+Suma de unidades:
+int total = coleccion.stream()
+    .mapToInt(x -> x.getUnidades())
+    .sum();
+
+-------------------------------------------
+
+🔹 4. Streams – Recolectar elementos
+
+Nueva lista filtrada:
+List<Tipo> lista = coleccion.stream()
+    .filter(...)
+    .collect(Collectors.toList());
+
+Nuevo mapa clave → valor:
+Map<Clave, Valor> mapa = coleccion.stream()
+    .collect(Collectors.toMap(
+        x -> x.getClave(),
+        x -> x.getValor()
+    ));
+
+-------------------------------------------
+
+✅ CONSEJO FINAL:
+- Usa try-with-resources para archivos
+- mapToDouble + sum = cálculo total
+- filter + sorted = selección ordenada
+- collect = nueva colección (List, Set, Map)
+
+¡Léelo antes del examen y lo revientas! 💥
+
 
 */
 //</editor-fold>
