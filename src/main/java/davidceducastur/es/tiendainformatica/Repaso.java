@@ -628,4 +628,115 @@ public class Repaso {
     }
 //</editor-fold>
     
+    //<editor-fold defaultstate="collapsed" desc="EJERCICIOS EXAMEN">
+    
+    // 1. Devuelve un Map<String, Double> con el DNI de cada cliente y su gasto total.
+    public Map<String, Double> gastoTotalPorCliente() {
+    return clientes.values().stream().collect(Collectors.toMap(Cliente::getDni,c -> totalCliente(c)
+        ));
+    }
+    
+    // 2. Guarda en clientesConPedidos.csv solo los clientes que han hecho al menos un pedido.
+    public void guardarClientesConPedidosCSV() {
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesConPedidos.csv"))) {
+        clientes.values().stream()
+            .filter(c -> pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c)))
+            .forEach(c -> {
+                try {
+                    bw.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail());
+                    bw.newLine();
+                } catch (IOException e) {
+                    System.out.println("Error al escribir: " + e.getMessage());
+                }
+            });
+        System.out.println("Clientes con pedidos guardados.");
+    } catch (IOException e) {
+        System.out.println("Error general: " + e.getMessage());
+     }
+    }
+    
+    // 3. Devuelve el total de dinero gastado por todos los clientes en todos los pedidos.
+    public double totalFacturadoTienda() {
+    return pedidos.stream()
+        .mapToDouble(p -> totalPedido(p))
+        .sum();
+    }
+    
+    // 4. Muestra todos los pedidos ordenados de mayor a menor importe.
+    public void pedidosOrdenadosPorImporte() {
+    pedidos.stream()
+        .sorted(Comparator.comparing(p -> totalPedido((Pedido) p)).reversed())
+        .forEach(p -> System.out.println(p.getIdPedido() + ": " + totalPedido(p)));
+    }
+    
+    // 5. Guarda en un archivo clientesMas1000.csv los clientes que hayan gastado más de 1000€
+    public void guardarClientesMas1000CSV() {
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesMas1000.csv"))) {
+        clientes.values().stream()
+            .filter(c -> totalCliente(c) > 1000)
+            .forEach(c -> {
+                try {
+                    bw.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail());
+                    bw.newLine();
+                } catch (IOException e) {
+                    System.out.println("Error al escribir: " + e.getMessage());
+                }
+            });
+    } catch (IOException e) {
+        System.out.println("Error general: " + e.getMessage());
+    }
+    }
+    
+    // 6. Devuelve el total gastado en monitores (idArticulo empieza por "4")
+    public double totalGastoEnMonitores() {
+    return pedidos.stream()
+        .flatMap(p -> p.getCestaCompra().stream())
+        .filter(lp -> lp.getIdArticulo().startsWith("4"))
+        .mapToDouble(lp -> lp.getUnidades() * articulos.get(lp.getIdArticulo()).getPvp())
+        .sum();
+    }
+    
+    // 7. Muestra los clientes ordenados por el número total de artículos que han comprado (no el dinero)
+    public void clientesOrdenadosPorUnidadesCompradas() {
+    clientes.values().stream()
+        .sorted(Comparator.comparingInt(c -> pedidos.stream()
+            .filter(p -> p.getClientePedido().equals(c))
+            .flatMap(p -> p.getCestaCompra().stream())
+            .mapToInt(LineaPedido::getUnidades)
+            .sum()).reversed())
+        .forEach(c -> System.out.println(c.getNombre() + " - unidades: " +
+            pedidos.stream()
+            .filter(p -> p.getClientePedido().equals(c))
+            .flatMap(p -> p.getCestaCompra().stream())
+            .mapToInt(LineaPedido::getUnidades)
+            .sum()));
+    }
+    
+    // 8. Crea un Map<String, Integer> con el nombre del cliente y el número total de artículos comprados
+    public Map<String, Integer> mapaNombreConUnidades() {
+    return clientes.values().stream()
+        .collect(Collectors.toMap(
+            Cliente::getNombre,c -> pedidos.stream()
+                .filter(p -> p.getClientePedido().equals(c))
+                .flatMap(p -> p.getCestaCompra().stream())
+                .mapToInt(LineaPedido::getUnidades).sum()));
+    }
+    
+    // 9. Mostrar los clientes que han hecho pedidos, ordenados por nombre alfabéticamente.
+    public void mostrarClientesConPedidosOrdenadosPorNombre() {
+    clientes.values().stream().filter(c -> pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c)))
+        .sorted(Comparator.comparing(Cliente::getNombre)).forEach(System.out::println);
+    }
+    
+    // 10. Devuelve el número total de unidades vendidas de artículos de la sección 4 (monitores)
+    public int totalUnidadesVendidasSeccion4() {
+    return pedidos.stream().flatMap(p -> p.getCestaCompra().stream())
+        .filter(lp -> lp.getIdArticulo().startsWith("4"))
+        .mapToInt(LineaPedido::getUnidades).sum();
+    }
+   
+
+   
+//</editor-fold>
+    
 }
