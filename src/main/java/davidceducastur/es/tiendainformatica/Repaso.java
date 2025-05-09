@@ -609,22 +609,8 @@ public class Repaso {
                .collect(Collectors.minBy(Comparator.comparing(Articulo::getPvp)));
         
         System.out.println(min);
-        System.out.println(max);
+        System.out.println(max);                  
         
-        /* ESTILO CLASICO-MIXTO
-        PODEMOS CREAR UN LISTA CON LOS ARTÍCULOS DE ESA SECCIÓN, ORDENARLA POR PRECIO CON UN COMPARATOR
-        (OJO PORQUE EL COMPARATOR HAY QUE CREARLO A PARTE)
-        Y TOMAR COMO MÁXIMO EL ÚLTIMO Y MÍNIMO EL 1º
-        */ 
-                    
-        List<Articulo> listaMinMax = articulos.values().stream()
-             .filter(a->a.getIdArticulo().startsWith(sec))
-             .collect(Collectors.toList());
-        
-        Collections.sort(listaMinMax, new ComparaArticuloPorPrecio());
-        System.out.println("");
-        System.out.println(listaMinMax.getFirst());
-        System.out.println(listaMinMax.getLast());
     }
 //</editor-fold>
     
