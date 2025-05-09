@@ -20,7 +20,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -665,6 +668,66 @@ public class TiendaInformatica {
         }
     }
     }
+    
+    public void backupPedidosPorCliente() {
+    for (Cliente c : clientes.values()) {
+        List<Pedido> pedidosCliente = pedidos.stream()
+            .filter(p -> p.getClientePedido().equals(c))
+            .collect(Collectors.toList());
+
+        if (!pedidosCliente.isEmpty()) {
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(c.getNombre().trim() + ".txt"))) {
+                for (Pedido p : pedidosCliente) {
+                    bw.write(p.getIdPedido() + ", " + c.getNombre() + ", " + p.getFechaPedido());
+                    bw.newLine();
+                }
+            } catch (IOException e) {
+                System.out.println("Error con cliente " + c.getNombre());
+            }
+        }
+    }
+    }
+    
+    public int numPedidosCliente(Cliente c) {
+    return (int) pedidos.stream().filter(p -> p.getClientePedido().equals(c)).count();
+    }
+    
+    public void listaAlmacenamientoOrdenado() {
+    List<Articulo> lista = articulos.values().stream()
+        .filter(a -> a.getIdArticulo().startsWith("2"))
+        .sorted(Comparator.comparingDouble(Articulo::getPvp))
+        .collect(Collectors.toList());
+
+    lista.forEach(System.out::println);
+    }
+    
+    public void setArticulosCaros() {
+    Set<Articulo> conjunto = articulos.values().stream()
+        .filter(a -> a.getPvp() > 100)
+        .collect(Collectors.toSet());
+
+    conjunto.forEach(System.out::println);
+    }
+    
+    public void mapArticulosEscasos() {
+    Map<String, Articulo> mapa = articulos.values().stream()
+        .filter(a -> a.getExistencias() < 5)
+        .collect(Collectors.toMap(
+            Articulo::getIdArticulo,
+            a -> a
+        ));
+
+    mapa.forEach((k, v) -> System.out.println(k + " -> " + v));
+    }
+    
+    public void listadoClientes() {
+    clientes.values().stream()
+        .sorted(Comparator.comparingInt(c -> numPedidosCliente(c)))
+        .forEach(c -> System.out.println(c.getDni() + " - " + c.getNombre() + " - " + numPedidosCliente(c)));
+    }
+    
+    
+
     
     public void cargaDatos() {
         
