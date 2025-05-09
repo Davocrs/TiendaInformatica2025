@@ -790,27 +790,22 @@ public class Repaso {
     
     // 14. Crea un Map<String, Integer> con el DNI del cliente y el nº de pedidos realizados.
     public Map<String, Integer> pedidosPorCliente() {
-    return clientes.values().stream()
-        .collect(Collectors.toMap(
+    return clientes.values().stream().collect(Collectors.toMap(
             Cliente::getDni,
-            c -> (int) pedidos.stream().filter(p -> p.getClientePedido().equals(c)).count()
-        ));
+            c -> (int) pedidos.stream().filter(p -> p.getClientePedido().equals(c)).count()));
     }
     
     // 15. Crea un Map<Character, Integer> donde la clave sea la sección (1, 2, 3...) y el valor el total de existencias.
     public Map<Character, Integer> existenciasPorSeccion() {
-    return articulos.values().stream()
-        .collect(Collectors.toMap(
-            a -> a.getIdArticulo().charAt(0),
-            a -> a.getExistencias(),
-            Integer::sum // si hay claves repetidas, se suman
-        ));
+    return articulos.values().stream().collect(Collectors.toMap(
+        a -> a.getIdArticulo().charAt(0),
+        a -> a.getExistencias(),
+        Integer::sum));
     }
 
     // 16. Lista de artículos con precio entre 50 y 200 ordenados por existencias
     public List<Articulo> articulosPrecioMedioOrdenadosPorStock() {
-    return articulos.values().stream()
-        .filter(a -> a.getPvp() >= 50 && a.getPvp() <= 200)
+    return articulos.values().stream().filter(a -> a.getPvp() >= 50 && a.getPvp() <= 200)
         .sorted(Comparator.comparingInt(Articulo::getExistencias).reversed())
         .collect(Collectors.toList());
     }
@@ -825,7 +820,7 @@ public class Repaso {
         }
         System.out.println("Artículos sin stock guardados.");
     } catch (IOException e) {
-        System.out.println("Error: " + e.getMessage());
+
     }
     }
 
@@ -837,8 +832,7 @@ public class Repaso {
     
     // 19. Lista de artículos con más de 10 existencias, ordenados por ID
     public List<Articulo> articulosConStockOrdenadosPorId() {
-    return articulos.values().stream()
-        .filter(a -> a.getExistencias() > 10)
+    return articulos.values().stream().filter(a -> a.getExistencias() > 10)
         .sorted(Comparator.comparing(Articulo::getIdArticulo))
         .collect(Collectors.toList());
     }
@@ -860,7 +854,7 @@ public class Repaso {
             });
         System.out.println("Clientes VIP guardados correctamente.");
     } catch (IOException e) {
-        System.out.println("Error general: " + e.getMessage());
+
     }
     }
     
@@ -878,7 +872,7 @@ public class Repaso {
     }
     }
     
-    // 22. Devuelve el total gastado por todos los clientes (es decir, la suma de todos los pedidos).
+    // 22. Devuelve el total gastado por todos los clientes
     public double totalFacturado() {
     return pedidos.stream().mapToDouble(p -> totalPedido(p)).sum();
     }
