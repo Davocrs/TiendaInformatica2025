@@ -646,12 +646,12 @@ public class Repaso {
                     bw.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail());
                     bw.newLine();
                 } catch (IOException e) {
-                    System.out.println("Error al escribir: " + e.getMessage());
+
                 }
             });
         System.out.println("Clientes con pedidos guardados.");
     } catch (IOException e) {
-        System.out.println("Error general: " + e.getMessage());
+        
      }
     }
     
@@ -863,6 +863,38 @@ public class Repaso {
         System.out.println("Error general: " + e.getMessage());
     }
     }
+    
+    // 21. Guardar en un archivo .txt los clientes que hayan hecho al menos un pedido.
+    public void guardarClientesConPedidos() {
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesConPedidos.txt"))) {
+        for (Cliente c : clientes.values()) {
+            if (pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c))) {
+                bw.write(c.getDni() + " - " + c.getNombre());
+                bw.newLine();
+            }
+        }
+    } catch (IOException e) {
+
+    }
+    }
+    
+    // 22. Devuelve el total gastado por todos los clientes (es decir, la suma de todos los pedidos).
+    public double totalFacturado() {
+    return pedidos.stream().mapToDouble(p -> totalPedido(p)).sum();
+    }
+    
+    // 23. Muestra los artículos con más de 10 existencias, ordenados por precio de mayor a menor.
+    public void articulosConStockOrdenados() {
+    articulos.values().stream().filter(a -> a.getExistencias() > 10)
+        .sorted(Comparator.comparingDouble(Articulo::getPvp).reversed())
+        .forEach(System.out::println);
+    }
+    
+    // 24. Crea un mapa donde la clave sea el DNI del cliente y el valor el total gastado.
+    public Map<String, Double> gastoPorCliente() {
+    return clientes.values().stream().collect(Collectors.toMap(Cliente::getDni,c -> totalCliente(c)));
+    }
+
     
 //</editor-fold>
     
