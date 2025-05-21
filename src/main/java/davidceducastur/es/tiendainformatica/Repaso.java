@@ -63,6 +63,7 @@ public class Repaso {
     }
 
     public void cargaDatos(){
+        
        clientes.put("80580845T",new Cliente("80580845T","ANA ","658111111","ana@gmail.com"));
        clientes.put("36347775R",new Cliente("36347775R","ANTONIO","649222222","antonio@gmail.com"));
        clientes.put("63921307Y",new Cliente("63921307Y","AURORA","652333333","aurora@gmail.com"));
@@ -96,7 +97,7 @@ public class Repaso {
         (List.of(new LineaPedido("1-11",2),new LineaPedido("2-11",2)))));
        pedidos.add(new Pedido("43211307Y-001/2025",clientes.get("43211307Y"),hoy, new ArrayList<>
         (List.of(new LineaPedido("4-33",1)))));
-     } 
+    } 
     
     //<editor-fold defaultstate="collapsed" desc="PRUEBA EVALUABLE PERSISTENCIA 26-2-25 ">
     /************************************************************************************* 
@@ -618,263 +619,320 @@ public class Repaso {
     
     // 1. Devuelve un Map<String, Double> con el DNI de cada cliente y su gasto total.
     public Map<String, Double> gastoTotalPorCliente() {
-    return clientes.values().stream().collect(Collectors.toMap(Cliente::getDni,c -> totalCliente(c)
-        ));
+        return clientes.values().stream().collect(Collectors.toMap(Cliente::getDni,c -> totalCliente(c)));
     }
     
     // 2. Guarda en clientesConPedidos.csv solo los clientes que han hecho al menos un pedido.
     public void guardarClientesConPedidosCSV() {
-    try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesConPedidos.csv"))) {
-        clientes.values().stream()
-            .filter(c -> pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c)))
-            .forEach(c -> {
-                try {
-                    bw.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail());
-                    bw.newLine();
-                } catch (IOException e) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesConPedidos.csv"))) {
+            clientes.values().stream()
+                .filter(c -> pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c)))
+                .forEach(c -> {
+                    try {
+                        bw.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail());
+                        bw.newLine();
+                    } catch (IOException e) {
 
-                }
-            });
-        System.out.println("Clientes con pedidos guardados.");
-    } catch (IOException e) {
-        
-     }
+                    }
+                });
+            System.out.println("Clientes con pedidos guardados.");
+        } catch (IOException e) {
+
+        }
     }
     
     // 3. Devuelve el total de dinero gastado por todos los clientes en todos los pedidos.
     public double totalFacturadoTienda() {
-    return pedidos.stream()
-        .mapToDouble(p -> totalPedido(p))
-        .sum();
+        return pedidos.stream().mapToDouble(p -> totalPedido(p)).sum();
     }
     
     // 4. Muestra todos los pedidos ordenados de mayor a menor importe.
     public void pedidosOrdenadosPorImporte() {
-    pedidos.stream()
-        .sorted(Comparator.comparing(p -> totalPedido((Pedido) p)).reversed())
-        .forEach(p -> System.out.println(p.getIdPedido() + ": " + totalPedido(p)));
+        pedidos.stream()
+            .sorted(Comparator.comparing(p -> totalPedido((Pedido) p)).reversed())
+            .forEach(p -> System.out.println(p.getIdPedido() + ": " + totalPedido(p)));
     }
     
     // 5. Guarda en un archivo clientesMas1000.csv los clientes que hayan gastado más de 1000€
     public void guardarClientesMas1000CSV() {
-    try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesMas1000.csv"))) {
-        clientes.values().stream()
-            .filter(c -> totalCliente(c) > 1000)
-            .forEach(c -> {
-                try {
-                    bw.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail());
-                } catch (IOException e) {
-                    System.out.println("Error al escribir: " + e.getMessage());
-                }
-            });
-    } catch (IOException e) {
-        System.out.println("Error general: " + e.getMessage());
-    }
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesMas1000.csv"))) {
+            clientes.values().stream()
+                .filter(c -> totalCliente(c) > 1000)
+                .forEach(c -> {
+                    try {
+                        bw.write(c.getDni() + "," + c.getNombre() + "," + c.getTelefono() + "," + c.getEmail());
+                    } catch (IOException e) {
+                        System.out.println("Error al escribir: " + e.getMessage());
+                    }
+                });
+        } catch (IOException e) {
+            System.out.println("Error general: " + e.getMessage());
+        }
     }
     
     // 6. Devuelve el total gastado en monitores (idArticulo empieza por "4")
     public double totalGastoEnMonitores() {
-    double total = 0;
-    for (Pedido p : pedidos) {
-        for (LineaPedido l : p.getCestaCompra()) {
-            if (l.getIdArticulo().startsWith("4")) {
-                Articulo a = articulos.get(l.getIdArticulo());
-                total += a.getPvp() * l.getUnidades();
+        double total = 0;
+        for (Pedido p : pedidos) {
+            for (LineaPedido l : p.getCestaCompra()) {
+                if (l.getIdArticulo().startsWith("4")) {
+                    Articulo a = articulos.get(l.getIdArticulo());
+                    total += a.getPvp() * l.getUnidades();
+                }
             }
         }
-    }
-    return total;
+        return total;
     }
   
     // 7. Muestra los clientes ordenados por el número total de artículos que han comprado (no el dinero)
     public void clientesOrdenadosPorUnidadesCompradas() {
-    List<Cliente> lista = new ArrayList<>(clientes.values());
+        List<Cliente> lista = new ArrayList<>(clientes.values());
 
-    lista.sort(Comparator.comparingInt(c -> {
-        int total = 0;
-        for (Pedido p : pedidos) {
-            if (p.getClientePedido().equals(c)) {
-                for (LineaPedido l : p.getCestaCompra()) {
-                    total += l.getUnidades();
+        lista.sort(Comparator.comparingInt(c -> {
+            int total = 0;
+            for (Pedido p : pedidos) {
+                if (p.getClientePedido().equals(c)) {
+                    for (LineaPedido l : p.getCestaCompra()) {
+                        total += l.getUnidades();
+                    }
                 }
             }
-        }
-        return -total; //
-    }));
+            return -total; //
+        }));
 
-    for (Cliente c : lista) {
-        int total = 0;
-        for (Pedido p : pedidos) {
-            if (p.getClientePedido().equals(c)) {
-                for (LineaPedido l : p.getCestaCompra()) {
-                    total += l.getUnidades();
+        for (Cliente c : lista) {
+            int total = 0;
+            for (Pedido p : pedidos) {
+                if (p.getClientePedido().equals(c)) {
+                    for (LineaPedido l : p.getCestaCompra()) {
+                        total += l.getUnidades();
+                    }
                 }
             }
+            System.out.println(c.getNombre() + " - unidades: " + total);
         }
-        System.out.println(c.getNombre() + " - unidades: " + total);
-    }
     }
 
     // 8. Crea un Map<String, Integer> con el nombre del cliente y el número total de artículos comprados
     public Map<String, Integer> mapaNombreConUnidades() {
-    Map<String, Integer> resultado = new HashMap<>();
+        Map<String, Integer> resultado = new HashMap<>();
 
-    for (Cliente c : clientes.values()) {
-        int total = 0;
-        for (Pedido p : pedidos) {
-            if (p.getClientePedido().equals(c)) {
-                for (LineaPedido l : p.getCestaCompra()) {
-                    total += l.getUnidades();
+        for (Cliente c : clientes.values()) {
+            int total = 0;
+            for (Pedido p : pedidos) {
+                if (p.getClientePedido().equals(c)) {
+                    for (LineaPedido l : p.getCestaCompra()) {
+                        total += l.getUnidades();
+                    }
                 }
             }
+            resultado.put(c.getNombre(), total);
         }
-        resultado.put(c.getNombre(), total);
-    }
-
-    return resultado;
+        return resultado;
     }
 
     // 9. Mostrar los clientes que han hecho pedidos, ordenados por nombre alfabéticamente.
     public void mostrarClientesConPedidosOrdenadosPorNombre() {
-    clientes.values().stream().filter(c -> pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c)))
-        .sorted(Comparator.comparing(Cliente::getNombre)).forEach(System.out::println);
+        clientes.values().stream().filter(c -> pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c)))
+            .sorted(Comparator.comparing(Cliente::getNombre)).forEach(System.out::println);
     }
     
     // 10. Devuelve el número total de unidades vendidas de artículos de la sección 4 (monitores)
     public int totalUnidadesVendidasSeccion4() {
-    int total = 0;
-    for (Pedido p : pedidos) {
-        for (LineaPedido l : p.getCestaCompra()) {
-            if (l.getIdArticulo().startsWith("4")) {
-                total += l.getUnidades();
+        int total = 0;
+        for (Pedido p : pedidos) {
+            for (LineaPedido l : p.getCestaCompra()) {
+                if (l.getIdArticulo().startsWith("4")) {
+                    total += l.getUnidades();
+                }
             }
         }
-    }
     return total;
     }
     
     // 11. Muestra los artículos que no tienen existencias y ordénalos por precio descendente.
     public void mostrarArticulosSinStockOrdenados() {
-    articulos.values().stream()
-        .filter(a -> a.getExistencias() == 0)
-        .sorted(Comparator.comparingDouble(Articulo::getPvp).reversed())
-        .forEach(System.out::println);
+        articulos.values().stream()
+            .filter(a -> a.getExistencias() == 0)
+            .sorted(Comparator.comparingDouble(Articulo::getPvp).reversed())
+            .forEach(System.out::println);
     }
     
     // 12. Devuelve una lista con los clientes que nunca han hecho ningún pedido.
     public List<Cliente> clientesSinPedidos() {
-    return clientes.values().stream()
-        .filter(c -> pedidos.stream().noneMatch(p -> p.getClientePedido().equals(c)))
-        .collect(Collectors.toList());
+        return clientes.values().stream()
+            .filter(c -> pedidos.stream().noneMatch(p -> p.getClientePedido().equals(c)))
+            .collect(Collectors.toList());
     }
     
     // 13. Crea un Map<Character, List<Cliente>> donde la clave sea la letra inicial del nombre.
     public Map<Character, List<Cliente>> agruparClientesPorInicial() {
-    return clientes.values().stream()
-        .collect(Collectors.groupingBy(c -> c.getNombre().charAt(0)));
+        return clientes.values().stream()
+            .collect(Collectors.groupingBy(c -> c.getNombre().charAt(0)));
     }
     
     // 14. Crea un Map<String, Integer> con el DNI del cliente y el nº de pedidos realizados.
     public Map<String, Integer> pedidosPorCliente() {
-    return clientes.values().stream().collect(Collectors.toMap(
-            Cliente::getDni,
-            c -> (int) pedidos.stream().filter(p -> p.getClientePedido().equals(c)).count()));
+        return clientes.values().stream().collect(Collectors.toMap(
+                Cliente::getDni,
+                c -> (int) pedidos.stream().filter(p -> p.getClientePedido().equals(c)).count()));
     }
     
     // 15. Crea un Map<Character, Integer> donde la clave sea la sección (1, 2, 3...) y el valor el total de existencias.
     public Map<Character, Integer> existenciasPorSeccion() {
-    return articulos.values().stream().collect(Collectors.toMap(
-        a -> a.getIdArticulo().charAt(0),
-        a -> a.getExistencias(),
-        Integer::sum));
+        return articulos.values().stream().collect(Collectors.toMap(
+            a -> a.getIdArticulo().charAt(0),
+            a -> a.getExistencias(),
+            Integer::sum));
     }
 
     // 16. Lista de artículos con precio entre 50 y 200 ordenados por existencias
     public List<Articulo> articulosPrecioMedioOrdenadosPorStock() {
-    return articulos.values().stream().filter(a -> a.getPvp() >= 50 && a.getPvp() <= 200)
-        .sorted(Comparator.comparingInt(Articulo::getExistencias).reversed())
-        .collect(Collectors.toList());
+        return articulos.values().stream().filter(a -> a.getPvp() >= 50 && a.getPvp() <= 200)
+            .sorted(Comparator.comparingInt(Articulo::getExistencias).reversed())
+            .collect(Collectors.toList());
     }
     
     // 17. Guardar artículos sin stock en archivo sinStock.txt
     public void guardarArticulosSinStock() {
-    try (BufferedWriter bw = new BufferedWriter(new FileWriter("sinStock.txt"))) {
-        for (Articulo a : articulos.values()) {
-            if (a.getExistencias() == 0) {
-                bw.write(a.getIdArticulo() + " - " + a.getDescripcion());
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("sinStock.txt"))) {
+            for (Articulo a : articulos.values()) {
+                if (a.getExistencias() == 0) {
+                    bw.write(a.getIdArticulo() + " - " + a.getDescripcion());
+                }
             }
-        }
-        System.out.println("Artículos sin stock guardados.");
-    } catch (IOException e) {
+            System.out.println("Artículos sin stock guardados.");
+        } catch (IOException e) {
 
-    }
+        }
     }
 
     // 18. Total gastado por un cliente concreto
     public double gastoClientePorDni(String dni) {
-    return pedidos.stream().filter(p -> p.getClientePedido().getDni().equalsIgnoreCase(dni))
+        return pedidos.stream().filter(p -> p.getClientePedido().getDni().equalsIgnoreCase(dni))
         .mapToDouble(p -> totalPedido(p)).sum();
     }
     
     // 19. Lista de artículos con más de 10 existencias, ordenados por ID
     public List<Articulo> articulosConStockOrdenadosPorId() {
-    return articulos.values().stream().filter(a -> a.getExistencias() > 10)
-        .sorted(Comparator.comparing(Articulo::getIdArticulo))
-        .collect(Collectors.toList());
+        return articulos.values().stream().filter(a -> a.getExistencias() > 10)
+            .sorted(Comparator.comparing(Articulo::getIdArticulo))
+            .collect(Collectors.toList());
     }
     
     // 20. Crea un archivo que contenga los datos de los clientes que hayan hecho al menos 1 pedido y cuyo gasto total supere 1500 €
     public void guardarClientesVIP() {
-    try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesVIP.txt"))) {
-        clientes.values().stream()
-            .filter(c -> pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c))) 
-            .filter(c -> totalCliente(c) > 1500) 
-            .sorted(Comparator.comparingDouble(c -> -totalCliente(c)))
-            .forEach(c -> {
-                try {
-                    bw.write(c.getDni() + " - " + c.getNombre() + " - " + totalCliente(c));
-                    bw.newLine();
-                } catch (IOException e) {
-                    System.out.println("Error al escribir: " + e.getMessage());
-                }
-            });
-        System.out.println("Clientes VIP guardados correctamente.");
-    } catch (IOException e) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesVIP.txt"))) {
+            clientes.values().stream()
+                .filter(c -> pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c))) 
+                .filter(c -> totalCliente(c) > 1500) 
+                .sorted(Comparator.comparingDouble(c -> -totalCliente(c)))
+                .forEach(c -> {
+                    try {
+                        bw.write(c.getDni() + " - " + c.getNombre() + " - " + totalCliente(c));
+                        bw.newLine();
+                    } catch (IOException e) {
+                        System.out.println("Error al escribir: " + e.getMessage());
+                    }
+                });
+            System.out.println("Clientes VIP guardados correctamente.");
+        } catch (IOException e) {
 
-    }
+        }
     }
     
     // 21. Guardar en un archivo .txt los clientes que hayan hecho al menos un pedido.
     public void guardarClientesConPedidos() {
-    try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesConPedidos.txt"))) {
-        for (Cliente c : clientes.values()) {
-            if (pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c))) {
-                bw.write(c.getDni() + " - " + c.getNombre());
-                bw.newLine();
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("clientesConPedidos.txt"))) {
+            for (Cliente c : clientes.values()) {
+                if (pedidos.stream().anyMatch(p -> p.getClientePedido().equals(c))) {
+                    bw.write(c.getDni() + " - " + c.getNombre());
+                    bw.newLine();
+                }
             }
-        }
-    } catch (IOException e) {
+        } catch (IOException e) {
 
-    }
+        }
     }
     
     // 22. Devuelve el total gastado por todos los clientes
     public double totalFacturado() {
-    return pedidos.stream().mapToDouble(p -> totalPedido(p)).sum();
+        return pedidos.stream().mapToDouble(p -> totalPedido(p)).sum();
     }
     
     // 23. Muestra los artículos con más de 10 existencias, ordenados por precio de mayor a menor.
     public void articulosConStockOrdenados() {
-    articulos.values().stream().filter(a -> a.getExistencias() > 10)
-        .sorted(Comparator.comparingDouble(Articulo::getPvp).reversed())
-        .forEach(System.out::println);
+        articulos.values().stream().filter(a -> a.getExistencias() > 10)
+            .sorted(Comparator.comparingDouble(Articulo::getPvp).reversed())
+            .forEach(System.out::println);
     }
     
     // 24. Crea un mapa donde la clave sea el DNI del cliente y el valor el total gastado.
     public Map<String, Double> gastoPorCliente() {
-    return clientes.values().stream().collect(Collectors.toMap(Cliente::getDni,c -> totalCliente(c)));
+        return clientes.values().stream().collect(Collectors.toMap(Cliente::getDni,c -> totalCliente(c)));
     }
 
+    // 24. Guardar artículos con existencias 0 en un archivo sinStock.csv
+    public void backupArticulosSinStock() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("sinStock.csv"))) {
+            for (Articulo a : articulos.values()) {
+                if (a.getExistencias() == 0) {
+                    bw.write(a.getIdArticulo() + "," + a.getDescripcion() + "," + a.getPvp());
+                    bw.newLine();
+                }
+            }
+            System.out.println("Backup de artículos sin stock guardado.");
+        } catch (IOException e) {
+            System.out.println("Error al guardar: " + e.getMessage());
+        }
+    }
+
+    // 25. Guardar pedidos realizados hoy en pedidosHoy.txt
+    public void guardarPedidosDeHoy() {
+        LocalDate hoy = LocalDate.now();
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("pedidosHoy.txt"))) {
+            for (Pedido p : pedidos) {
+                if (p.getFechaPedido().equals(hoy)) {
+                    bw.write(p.getIdPedido() + " - " + p.getClientePedido().getNombre());
+                    bw.newLine();
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error al guardar.");
+        }
+    }
+    
+    // 26. Mostrar los pedidos de un cliente (pides DNI por teclado)
+    public void pedidosDeUnCliente() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Introduce DNI: ");
+        String dni = sc.nextLine();
+
+        for (Pedido p : pedidos) {
+            if (p.getClientePedido().getDni().equalsIgnoreCase(dni)) {
+                System.out.println(p.getIdPedido() + " - " + p.getFechaPedido());
+            }
+        }
+    }
+
+    // 27. Mostrar los artículos con más de 10 existencias
+    public void articulosConStockAlto() {
+        for (Articulo a : articulos.values()) {
+            if (a.getExistencias() > 10) {
+                System.out.println(a.getDescripcion() + " - Stock: " + a.getExistencias());
+            }
+        }
+    }
+    
+    // 28. Mostrar los clientes por orden alfabético (sin streams)
+    public void clientesOrdenadosPorNombre() {
+        List<Cliente> lista = new ArrayList<>(clientes.values());
+        lista.sort(Comparator.comparing(Cliente::getNombre));
+
+        for (Cliente c : lista) {
+            System.out.println(c.getNombre() + " - " + c.getDni());
+        }
+    }  
     
 //</editor-fold>
     
