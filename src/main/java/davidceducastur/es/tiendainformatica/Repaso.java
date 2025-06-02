@@ -932,8 +932,88 @@ public class Repaso {
         for (Cliente c : lista) {
             System.out.println(c.getNombre() + " - " + c.getDni());
         }
-    }  
+    }
     
+    // 29. Guardar en archivo articulosCaros.txt los artículos con PVP > 200
+    public void guardarArticulosCaros() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("articulosCaros.txt"))) {
+            for (Articulo a : articulos.values()) {
+                if (a.getPvp() > 200) {
+                    bw.write(a.getIdArticulo() + " - " + a.getDescripcion());
+                    bw.newLine();
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error al guardar.");
+        }
+    }
+    
+    // 30. Mostrar pedidos realizados en un año específico (pide año por teclado)
+    public void pedidosDelAño() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Introduce año: ");
+        int año = sc.nextInt();
+
+        for (Pedido p : pedidos) {
+            if (p.getFechaPedido().getYear() == año) {
+                System.out.println(p.getIdPedido() + " - " + p.getFechaPedido());
+            }
+        }
+    }
+
+    // 31. Crear lista de artículos cuyo ID empiece por ‘3’ (impresoras) 
+    public void listarImpresoras() {
+        List<Articulo> lista = new ArrayList<>();
+
+        for (Articulo a : articulos.values()) {
+            if (a.getIdArticulo().startsWith("3")) {
+                lista.add(a);
+            }
+        }
+
+        for (Articulo a : lista) {
+            System.out.println(a.getDescripcion() + " - " + a.getPvp());
+        }
+    }
+    
+    // Version sin streams
+    public void listarArticulosPorSeccion() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Introduce número de sección (1-4): ");
+        String seccion = sc.nextLine();
+
+        List<Articulo> lista = new ArrayList<>();
+
+        for (Articulo a : articulos.values()) {
+            if (a.getIdArticulo().startsWith(seccion)) {
+                lista.add(a);
+            }
+        }
+
+        for (Articulo a : lista) {
+            System.out.println(a.getDescripcion() + " - " + a.getPvp());
+        }
+    }
+    
+    // Version con streams
+    public void listarArticulosPorSeccionStream() {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Introduce número de sección (1-4): ");
+        String seccion = sc.nextLine();
+
+        articulos.values().stream().filter(a -> a.getIdArticulo().startsWith(seccion))
+            .forEach(a -> System.out.println(a.getDescripcion() + " - " + a.getPvp()));
+    }
+    
+    // 32. Mostrar todos los pedidos que incluyan más de 3 productos distintos
+    public void pedidosConMuchosProductos() {
+        for (Pedido p : pedidos) {
+            if (p.getCestaCompra().size() > 3) {
+                System.out.println(p.getIdPedido() + " - " + p.getCestaCompra().size() + " productos");
+            }
+        }
+    }
+ 
 //</editor-fold>
     
     //<editor-fold defaultstate="collapsed" desc="CHULETA RESUMEN">
