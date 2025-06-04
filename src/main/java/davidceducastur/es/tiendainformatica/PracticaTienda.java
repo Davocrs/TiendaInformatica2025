@@ -88,24 +88,24 @@ public class PracticaTienda {
         String opcion;
 
         do {
-            System.out.println("\nELIJA SECCIÓN PARA VER ARTÍCULOS (ENTER PARA SALIR):");
+            System.out.println("\nELIJA SECCION PARA VER ARTICULOS (ENTER PARA SALIR):");
             System.out.println("1 - PERIFERICOS");
             System.out.println("2 - ALMACENAMIENTO");
             System.out.println("3 - IMPRESORAS");
             System.out.println("4 - MONITORES");
             System.out.println("5 - TODAS");
-            System.out.print("Opción: ");
+            System.out.print("Opcion: ");
             opcion = sc.nextLine();
 
             if (opcion.equals("1") || opcion.equals("2") || opcion.equals("3") || opcion.equals("4")) {
-                System.out.println("\nARTÍCULOS DE LA SECCIÓN: " + opcion);
+                System.out.println("\nARTICULOS DE LA SECCION: " + opcion);
                 for (Articulo a : articulos.values()) {
                     if (a.getIdArticulo().startsWith(opcion)) {
                         System.out.println(a.getIdArticulo() + " - " + a.getDescripcion() + " - " + a.getPvp());
                     }
                 }
             } else if (opcion.equals("5")) {
-                System.out.println("\nARTÍCULOS DE TODAS LAS SECCIONES:");
+                System.out.println("\nARTICULOS DE TODAS LAS SECCIONES:");
                 for (Articulo a : articulos.values()) {
                     System.out.println(a.getIdArticulo() + " - " + a.getDescripcion() + " - " + a.getPvp());
                 }
@@ -114,7 +114,6 @@ public class PracticaTienda {
         } while (!opcion.equals(""));
     }
 
-    
     public void pedidosDeUnCliente() {
         Scanner sc = new Scanner(System.in);
         System.out.print("Introduce el ID del pedido: ");
@@ -124,7 +123,7 @@ public class PracticaTienda {
             if (p.getIdPedido().equalsIgnoreCase(id)) {
                 double total = 0;
 
-                System.out.println("Artículos del pedido " + id + ":");
+                System.out.println("Articulos del pedido " + id + ":");
                 for (LineaPedido l : p.getCestaCompra()) {
                     Articulo a = articulos.get(l.getIdArticulo());
                     double subtotal = a.getPvp() * l.getUnidades();
@@ -133,11 +132,11 @@ public class PracticaTienda {
                     System.out.println(a.getDescripcion() + " - " + a.getPvp() + " * " + l.getUnidades() + " = " + subtotal);
                 }
 
-                System.out.println("Total del pedido: " + total + " €");
+                System.out.println("Total del pedido: " + total);
                 return;
             }
         }
-        System.out.println("No se encontró ningún pedido con ese ID.");
+        System.out.println("No se encontro ningún pedido con ese ID.");
     }
 
     public void listadoClientesDeMayoraMenor(){
@@ -153,7 +152,7 @@ public class PracticaTienda {
         
         for (Articulo a : articulos.values()) {
             if (a.getExistencias() < cantidad) {
-                System.out.println(a.getDescripcion() + " - Stock: " + a.getExistencias());
+                System.out.println(a.getDescripcion() + " - Stock: " + a.getExistencias() + " - " + a.getPvp());
             }
         }
     }
