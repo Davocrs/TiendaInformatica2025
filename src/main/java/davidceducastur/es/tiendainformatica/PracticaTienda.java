@@ -140,7 +140,6 @@ public class PracticaTienda {
         System.out.println("No se encontró ningún pedido con ese ID.");
     }
 
-    
     public void listadoClientesDeMayoraMenor(){
         clientes.values().stream().sorted(Comparator.comparing(Cliente::getNombre))
         .forEach(c -> System.out.println(c.getNombre() + " - " + c.getDni() + " - " + c.getEmail() +
